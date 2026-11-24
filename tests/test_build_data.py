@@ -26,3 +26,12 @@ def test_build_refuses_leak(tmp_path, monkeypatch):
     with pytest.raises(SystemExit, match="leakage"):
         run(tmp_path, monkeypatch)
     assert not (tmp_path / "data" / "train.jsonl").exists()
+
+
+def test_judge_override_rejects(tmp_path, monkeypatch):
+    setup(tmp_path, "Find order 7 total in the forum shop")
+    j = tmp_path / "in" / "judged" / "out_collect"; j.mkdir(parents=True)
+    (j / "verified.jsonl").write_text(json.dumps({"task_id": "syn-r-0-1-s0", "verified": False}))
+    (j / "source_dir.txt").write_text("x")
+    with pytest.raises(SystemExit, match="zero verified"):
+        run(tmp_path, monkeypatch)

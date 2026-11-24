@@ -15,11 +15,16 @@ from wa.dataset import rows_from_episode
 
 
 def find_collect_dirs(inputs):
-    out = []
+    """-> (collect dirs, judge overrides {episode_id: verified}). Judge outputs (wa.run judge) carry source_dir.txt."""
+    out, overrides = [], {}
     for d in inputs:
         for v in pathlib.Path(d).rglob("verified.jsonl"):
-            out.append(v.parent)
-    return sorted(set(out))
+            if (v.parent / "source_dir.txt").exists():
+                for r in map(json.loads, filter(str.strip, open(v))):
+                    overrides[r["task_id"]] = bool(r.get("verified"))
+            else:
+                out.append(v.parent)
+    return sorted(set(out)), overrides
 
 
 def main():
@@ -29,7 +34,7 @@ def main():
     ap.add_argument("--dev-frac", type=float, default=0.05)
     a = ap.parse_args()
     out = pathlib.Path(a.out); out.mkdir(parents=True, exist_ok=True)
-    dirs = find_collect_dirs(a.inputs)
+    dirs, overrides = find_collect_dirs(a.inputs)
     if not dirs:
         raise SystemExit(f"REFUSE: no verified.jsonl under {a.inputs}")
     train, dev_tasks, stats = [], [], {}
@@ -47,7 +52,7 @@ def main():
                 if base not in seen_base:
                     dev_tasks.append(t); seen_base[base] = 1
                 continue
-            if not v["verified"]:
+            if not overrides.get(v["task_id"], v["verified"]):
                 continue
             rows = rows_from_episode(d / "runs" / v["task_id"], t["intent"])
             for r in rows:
@@ -69,7 +74,8 @@ def main():
         for t in dev_tasks:
             f.write(json.dumps(t) + "\n")
     summary = {"collect_dirs": [str(d) for d in dirs], "train_steps": len(train), "train_intents": len(intents),
-               "dev_tasks": len(dev_tasks), "per_site": stats, "leakage_hits": 0}
+               "dev_tasks": len(dev_tasks), "per_site": stats, "leakage_hits": 0,
+               "judge_overrides": len(overrides)}
     (out / "data_summary.json").write_text(json.dumps(summary, indent=1))
     print(json.dumps(summary))
 

@@ -188,6 +188,9 @@ def cmd_collect(a):
     policy = OpenAIPolicy(a.endpoint, a.model, temperature=a.temperature, api_key=a.api_key, seed=a.seed)
     text_policy = OpenAIPolicy(a.endpoint, a.model, temperature=0.7, max_tokens=1500, api_key=a.api_key)
     tasks_f = out / "synthetic_tasks.jsonl"
+    if a.tasks_file:  # rejection-sampling rounds: fresh tasks generated earlier, never trained on
+        import shutil
+        shutil.copy(a.tasks_file, tasks_f)
     if not tasks_f.exists():
         async def gen():
             async with async_playwright() as p:
@@ -233,13 +236,14 @@ def cmd_collect(a):
                 else:
                     prog = await verify.check_mutate(b, t, ans, sp)
                 judge = None
-                if prog and (d / "final.png").exists():
+                if prog and a.judge == "inline" and (d / "final.png").exists():
                     from PIL import Image
                     acts = [json.dumps(json.loads(l).get("action")) for l in open(d / "traj.jsonl")]
                     raw, _ = await asyncio.to_thread(policy, verify.judge_messages(t["intent"], ans, acts, Image.open(d / "final.png")))
                     judge = verify.judge_says_yes(raw)
                 res.append({"task_id": t["task_id"], "task_type": t["task_type"], "program": prog, "judge": judge,
-                            "verified": bool(prog and judge), "steps": m["steps"], "intent": t["intent"]})
+                            "verified": bool(prog and judge), "steps": m["steps"], "intent": t["intent"],
+                            "judge_pending": bool(prog and a.judge == "defer")})
             await b.close()
             return res
 
@@ -253,6 +257,73 @@ def cmd_collect(a):
     print(json.dumps(summary))
     if not res:
         raise SystemExit("REFUSE: zero episodes verified-or-not — collection produced nothing")
+
+
+def cmd_judge(a):
+    """Apply the Phase-2 LLM judge to candidates collected with --judge defer; rewrites verified.jsonl in place
+    (original kept as verified.prejudge.jsonl)."""
+    from PIL import Image
+    from wa import verify
+    policy = OpenAIPolicy(a.endpoint, a.model, temperature=0.0, max_tokens=8, api_key=a.api_key)
+    dirs = sorted({v.parent for d in a.inputs for v in pathlib.Path(d).rglob("verified.jsonl")})
+    if not dirs:
+        raise SystemExit("REFUSE: no verified.jsonl under inputs")
+    tot = {"pending": 0, "yes": 0}
+    for d in dirs:
+        rows = [json.loads(l) for l in open(d / "verified.jsonl") if l.strip()]
+        tasks = {t["task_id"]: t for t in map(json.loads, open(d / "synthetic_tasks.jsonl"))}
+
+        def judge_one(r):
+            if not r.get("judge_pending"):
+                return r
+            ep = d / "runs" / r["task_id"]
+            ans = json.loads((ep / "agent_response.json").read_text())
+            acts = [json.dumps(json.loads(l).get("action")) for l in open(ep / "traj.jsonl")]
+            base = r["task_id"].rsplit("-s", 1)[0]
+            raw, _ = policy(verify.judge_messages(tasks[base]["intent"], ans, acts, Image.open(ep / "final.png")))
+            r["judge"] = verify.judge_says_yes(raw); r["verified"] = bool(r["program"] and r["judge"]); r["judge_pending"] = False
+            return r
+        from concurrent.futures import ThreadPoolExecutor
+        with ThreadPoolExecutor(a.concurrency) as ex:
+            rows = list(ex.map(judge_one, rows))
+        tot["pending"] += sum(1 for r in rows if r.get("program")); tot["yes"] += sum(1 for r in rows if r.get("verified"))
+        out_dir = pathlib.Path(a.out) / d.name
+        out_dir.mkdir(parents=True, exist_ok=True)
+        (out_dir / "verified.jsonl").write_text("\n".join(json.dumps(r) for r in rows))
+        (out_dir / "source_dir.txt").write_text(str(d))
+    print(json.dumps(tot))
+
+
+def cmd_devval(a):
+    """Dev success of a checkpoint on held-out synthetic tasks, programmatic check only (no judge, no WebArena)."""
+    from wa import verify
+    base_urls = _base_urls(a.config)
+    tasks = [json.loads(l) for l in open(a.tasks_file) if l.strip()]
+    tasks = [t for t in tasks if t["site"] == a.sites]
+    if not tasks:
+        raise SystemExit("REFUSE: zero dev tasks for this site")
+    policy = OpenAIPolicy(a.endpoint, a.model, temperature=0.0, api_key=a.api_key, seed=a.seed)
+    runs = pathlib.Path(a.out) / "runs"
+    metas = {m["task_id"]: m for m in asyncio.run(run_many(tasks, policy, runs, base_urls, a.concurrency, not a.no_som, False))}
+
+    async def check():
+        async with async_playwright() as p:
+            b = await p.chromium.launch()
+            ok = []
+            for t in tasks:
+                ans = json.loads((runs / t["task_id"] / "agent_response.json").read_text())
+                if t["task_type"] == "RETRIEVE":
+                    ok.append(verify.check_retrieve(t, ans))
+                elif t["task_type"] == "NAVIGATE":
+                    ok.append(verify.check_navigate(t, ans, metas[t["task_id"]].get("final_url")))
+                else:
+                    ok.append(await verify.check_mutate(b, t, ans, runs / f".state_{a.sites}.json"))
+            await b.close()
+            return ok
+    ok = asyncio.run(check())
+    res = {"model": a.model, "site": a.sites, "n": len(ok), "dev_success": sum(ok) / len(ok)}
+    (pathlib.Path(a.out) / "devval.json").write_text(json.dumps(res, indent=1))
+    print(json.dumps(res))
 
 
 def main():
@@ -269,7 +340,22 @@ def main():
     c.add_argument("--limit", type=int, default=0)
     c.add_argument("--samples", type=int, default=1)
     c.add_argument("--crawl-pages", type=int, default=250)
-    for p in (e, c):
+    c.add_argument("--tasks-file", default="")
+    c.add_argument("--judge", choices=["inline", "defer"], default="inline")
+    j = sub.add_parser("judge", help="run the teacher judge over deferred candidates (same verifier as Phase 2)")
+    j.add_argument("--inputs", nargs="+", required=True)
+    j.add_argument("--model", required=True)
+    j.add_argument("--endpoint", required=True)
+    j.add_argument("--api-key", default="x")
+    j.add_argument("--out", required=True)
+    j.add_argument("--concurrency", type=int, default=8)
+    j.add_argument("--config", default="")
+    j.add_argument("--sites", default="")
+    dv = sub.add_parser("devval", help="dev success on held-out synthetic tasks (programmatic check only)")
+    dv.add_argument("--config", required=True)
+    dv.add_argument("--sites", required=True)
+    dv.add_argument("--tasks-file", required=True)
+    for p in (e, c, dv):
         p.add_argument("--model", required=True)
         p.add_argument("--endpoint", required=True)
         p.add_argument("--api-key", default="x")
@@ -279,7 +365,7 @@ def main():
         p.add_argument("--seed", type=int, default=0)
         p.add_argument("--no-som", action="store_true")
     a = ap.parse_args()
-    {"eval": cmd_eval, "collect": cmd_collect}[a.cmd](a)
+    {"eval": cmd_eval, "collect": cmd_collect, "judge": cmd_judge, "devval": cmd_devval}[a.cmd](a)
 
 
 if __name__ == "__main__":
