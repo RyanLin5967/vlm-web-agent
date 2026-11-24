@@ -57,3 +57,10 @@ Append-only. Newest at the bottom. (Not named DECISIONS.md: the global spend-gua
   -> **Teacher = Qwen3-VL-30B-A3B-Instruct AWQ** (more concurrency, 3B active params, faster decode).
   -> 32B baseline runs separately: max_model_len 6144, util 0.95, max_num_batched_tokens 4096, concurrency 3.
   Collection runs BEFORE eval in teacher kernels (data is the critical path).
+- 2026-11-24 ~20:05 UTC: **:80 bug** confirmed and fixed. Base URL "http://localhost:80" made every
+  NetworkEventEvaluator regex miss (browser records http://localhost/...) and made the crawler reject every link
+  (3 synthetic tasks total). Same 106 reddit episodes of Qwen3-VL-30B-A3B re-scored with the official evaluator
+  under the corrected URL (wa/rescore.py, kernel wa-rescore-reddit-teacher): 0/106 -> 8/106 = 7.5%
+  (95% bootstrap CI 2.8-13.2%), mean 20.4 steps, 44.8k input tokens/task. results/reddit__Qwen3-VL-30B-A3B-AWQ__zs__s0.json
+- Teacher throughput (vLLM log, 2xT4, conc 8): ~300 prompt tok/s, ~23 gen tok/s, KV ~25% -> ~0.3 steps/s.
+  Collection raised to concurrency 16. Realistic data scale on free tier: low thousands of verified steps per site.

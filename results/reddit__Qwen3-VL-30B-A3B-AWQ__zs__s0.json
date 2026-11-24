@@ -1,0 +1,1088 @@
+{
+ "model": "QuantTrio/Qwen3-VL-30B-A3B-Instruct-AWQ",
+ "endpoint": "rescore",
+ "seed": 0,
+ "temperature": 0.0,
+ "som": true,
+ "date_utc": "2026-11-24T20:04:08Z",
+ "n_tasks": 106,
+ "n_missing_eval": 0,
+ "n_selected": 106,
+ "success": 0.07547169811320754,
+ "ci95": [
+  0.02830188679245283,
+  0.1320754716981132
+ ],
+ "per_site": {
+  "reddit": {
+   "n": 106,
+   "success": 0.07547169811320754
+  }
+ },
+ "mean_steps": 20.42452830188679,
+ "mean_tokens_in": 44755.764150943396,
+ "mean_tokens_out": 1714.933962264151,
+ "wall_s": 0,
+ "rows": [
+  {
+   "task_id": 618,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 2,
+   "tokens_in": 4447,
+   "tokens_out": 238
+  },
+  {
+   "task_id": 643,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 65709,
+   "tokens_out": 1948
+  },
+  {
+   "task_id": 633,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 65929,
+   "tokens_out": 1348
+  },
+  {
+   "task_id": 600,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 12,
+   "tokens_in": 25155,
+   "tokens_out": 1709
+  },
+  {
+   "task_id": 615,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 2,
+   "tokens_in": 4744,
+   "tokens_out": 516
+  },
+  {
+   "task_id": 400,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 6,
+   "tokens_in": 12849,
+   "tokens_out": 461
+  },
+  {
+   "task_id": 595,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 9,
+   "tokens_in": 18889,
+   "tokens_out": 658
+  },
+  {
+   "task_id": 650,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 4,
+   "tokens_in": 9240,
+   "tokens_out": 339
+  },
+  {
+   "task_id": 730,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 2,
+   "tokens_in": 4393,
+   "tokens_out": 217
+  },
+  {
+   "task_id": 729,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 64792,
+   "tokens_out": 2513
+  },
+  {
+   "task_id": 604,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 5,
+   "tokens_in": 10004,
+   "tokens_out": 892
+  },
+  {
+   "task_id": 652,
+   "sites": [
+    "reddit"
+   ],
+   "success": 1.0,
+   "steps": 3,
+   "tokens_in": 6683,
+   "tokens_out": 249
+  },
+  {
+   "task_id": 720,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 64580,
+   "tokens_out": 2035
+  },
+  {
+   "task_id": 612,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 66888,
+   "tokens_out": 2054
+  },
+  {
+   "task_id": 401,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 7,
+   "tokens_in": 14827,
+   "tokens_out": 505
+  },
+  {
+   "task_id": 723,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 64757,
+   "tokens_out": 2288
+  },
+  {
+   "task_id": 620,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 65880,
+   "tokens_out": 3575
+  },
+  {
+   "task_id": 721,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 7,
+   "tokens_in": 15144,
+   "tokens_out": 862
+  },
+  {
+   "task_id": 619,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 72705,
+   "tokens_out": 2863
+  },
+  {
+   "task_id": 597,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 64989,
+   "tokens_out": 2049
+  },
+  {
+   "task_id": 30,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 1,
+   "tokens_in": 2005,
+   "tokens_out": 113
+  },
+  {
+   "task_id": 644,
+   "sites": [
+    "reddit"
+   ],
+   "success": 1.0,
+   "steps": 10,
+   "tokens_in": 22665,
+   "tokens_out": 827
+  },
+  {
+   "task_id": 581,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 63884,
+   "tokens_out": 2496
+  },
+  {
+   "task_id": 404,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 68651,
+   "tokens_out": 2098
+  },
+  {
+   "task_id": 622,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 65700,
+   "tokens_out": 3469
+  },
+  {
+   "task_id": 728,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 64579,
+   "tokens_out": 2202
+  },
+  {
+   "task_id": 596,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 65600,
+   "tokens_out": 2281
+  },
+  {
+   "task_id": 605,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 5,
+   "tokens_in": 11224,
+   "tokens_out": 442
+  },
+  {
+   "task_id": 66,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 66486,
+   "tokens_out": 2102
+  },
+  {
+   "task_id": 407,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 63879,
+   "tokens_out": 1724
+  },
+  {
+   "task_id": 626,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 61868,
+   "tokens_out": 2735
+  },
+  {
+   "task_id": 714,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 64582,
+   "tokens_out": 2141
+  },
+  {
+   "task_id": 601,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 11,
+   "tokens_in": 23528,
+   "tokens_out": 1390
+  },
+  {
+   "task_id": 716,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 9,
+   "tokens_in": 22996,
+   "tokens_out": 1181
+  },
+  {
+   "task_id": 67,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 67128,
+   "tokens_out": 1975
+  },
+  {
+   "task_id": 718,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 9,
+   "tokens_in": 17918,
+   "tokens_out": 1369
+  },
+  {
+   "task_id": 735,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 2,
+   "tokens_in": 4520,
+   "tokens_out": 210
+  },
+  {
+   "task_id": 624,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 65760,
+   "tokens_out": 3545
+  },
+  {
+   "task_id": 610,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 19,
+   "tokens_in": 39991,
+   "tokens_out": 2550
+  },
+  {
+   "task_id": 410,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 68971,
+   "tokens_out": 2094
+  },
+  {
+   "task_id": 725,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 65400,
+   "tokens_out": 2492
+  },
+  {
+   "task_id": 645,
+   "sites": [
+    "reddit"
+   ],
+   "success": 1.0,
+   "steps": 15,
+   "tokens_in": 33263,
+   "tokens_out": 1011
+  },
+  {
+   "task_id": 724,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 1,
+   "tokens_in": 2466,
+   "tokens_out": 134
+  },
+  {
+   "task_id": 621,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 65700,
+   "tokens_out": 3583
+  },
+  {
+   "task_id": 403,
+   "sites": [
+    "reddit"
+   ],
+   "success": 1.0,
+   "steps": 7,
+   "tokens_in": 14795,
+   "tokens_out": 464
+  },
+  {
+   "task_id": 732,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 1,
+   "tokens_in": 2487,
+   "tokens_out": 256
+  },
+  {
+   "task_id": 722,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 2,
+   "tokens_in": 4394,
+   "tokens_out": 235
+  },
+  {
+   "task_id": 639,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 64605,
+   "tokens_out": 4518
+  },
+  {
+   "task_id": 408,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 66323,
+   "tokens_out": 2315
+  },
+  {
+   "task_id": 629,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 63977,
+   "tokens_out": 3369
+  },
+  {
+   "task_id": 402,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 8,
+   "tokens_in": 16920,
+   "tokens_out": 618
+  },
+  {
+   "task_id": 726,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 64702,
+   "tokens_out": 2059
+  },
+  {
+   "task_id": 715,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 17,
+   "tokens_in": 41944,
+   "tokens_out": 2077
+  },
+  {
+   "task_id": 599,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 64389,
+   "tokens_out": 1754
+  },
+  {
+   "task_id": 623,
+   "sites": [
+    "reddit"
+   ],
+   "success": 1.0,
+   "steps": 15,
+   "tokens_in": 33434,
+   "tokens_out": 1341
+  },
+  {
+   "task_id": 719,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 3,
+   "tokens_in": 4604,
+   "tokens_out": 180
+  },
+  {
+   "task_id": 642,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 65923,
+   "tokens_out": 3689
+  },
+  {
+   "task_id": 630,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 66289,
+   "tokens_out": 1832
+  },
+  {
+   "task_id": 584,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 21,
+   "tokens_in": 43749,
+   "tokens_out": 1910
+  },
+  {
+   "task_id": 602,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 1,
+   "tokens_in": 2395,
+   "tokens_out": 144
+  },
+  {
+   "task_id": 625,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 64607,
+   "tokens_out": 3579
+  },
+  {
+   "task_id": 603,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 6,
+   "tokens_in": 13111,
+   "tokens_out": 584
+  },
+  {
+   "task_id": 405,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 63772,
+   "tokens_out": 1661
+  },
+  {
+   "task_id": 628,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 62141,
+   "tokens_out": 2616
+  },
+  {
+   "task_id": 632,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 65962,
+   "tokens_out": 1630
+  },
+  {
+   "task_id": 29,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 66789,
+   "tokens_out": 1613
+  },
+  {
+   "task_id": 641,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 10,
+   "tokens_in": 22114,
+   "tokens_out": 921
+  },
+  {
+   "task_id": 598,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 64629,
+   "tokens_out": 1712
+  },
+  {
+   "task_id": 606,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 64999,
+   "tokens_out": 1685
+  },
+  {
+   "task_id": 731,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 5,
+   "tokens_in": 11439,
+   "tokens_out": 419
+  },
+  {
+   "task_id": 646,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 64837,
+   "tokens_out": 2231
+  },
+  {
+   "task_id": 734,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 68658,
+   "tokens_out": 1963
+  },
+  {
+   "task_id": 651,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 13,
+   "tokens_in": 27901,
+   "tokens_out": 850
+  },
+  {
+   "task_id": 627,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 64080,
+   "tokens_out": 3234
+  },
+  {
+   "task_id": 409,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 4,
+   "tokens_in": 9257,
+   "tokens_out": 393
+  },
+  {
+   "task_id": 638,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 66937,
+   "tokens_out": 4552
+  },
+  {
+   "task_id": 69,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 12,
+   "tokens_in": 23855,
+   "tokens_out": 888
+  },
+  {
+   "task_id": 68,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 68343,
+   "tokens_out": 1812
+  },
+  {
+   "task_id": 580,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 63805,
+   "tokens_out": 2265
+  },
+  {
+   "task_id": 28,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 66821,
+   "tokens_out": 2244
+  },
+  {
+   "task_id": 636,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 66787,
+   "tokens_out": 4134
+  },
+  {
+   "task_id": 634,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 65989,
+   "tokens_out": 1407
+  },
+  {
+   "task_id": 616,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 6,
+   "tokens_in": 13305,
+   "tokens_out": 689
+  },
+  {
+   "task_id": 31,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 66909,
+   "tokens_out": 2293
+  },
+  {
+   "task_id": 637,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 67484,
+   "tokens_out": 4134
+  },
+  {
+   "task_id": 649,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 65018,
+   "tokens_out": 1594
+  },
+  {
+   "task_id": 727,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 2,
+   "tokens_in": 4411,
+   "tokens_out": 187
+  },
+  {
+   "task_id": 647,
+   "sites": [
+    "reddit"
+   ],
+   "success": 1.0,
+   "steps": 15,
+   "tokens_in": 33963,
+   "tokens_out": 1129
+  },
+  {
+   "task_id": 399,
+   "sites": [
+    "reddit"
+   ],
+   "success": 1.0,
+   "steps": 6,
+   "tokens_in": 12766,
+   "tokens_out": 410
+  },
+  {
+   "task_id": 717,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 6,
+   "tokens_in": 15018,
+   "tokens_out": 554
+  },
+  {
+   "task_id": 631,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 65929,
+   "tokens_out": 1755
+  },
+  {
+   "task_id": 733,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 67525,
+   "tokens_out": 2001
+  },
+  {
+   "task_id": 582,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 63404,
+   "tokens_out": 2350
+  },
+  {
+   "task_id": 583,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 64541,
+   "tokens_out": 2360
+  },
+  {
+   "task_id": 608,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 65012,
+   "tokens_out": 1836
+  },
+  {
+   "task_id": 611,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 66814,
+   "tokens_out": 2066
+  },
+  {
+   "task_id": 406,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 7,
+   "tokens_in": 15662,
+   "tokens_out": 530
+  },
+  {
+   "task_id": 607,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 7,
+   "tokens_in": 15723,
+   "tokens_out": 579
+  },
+  {
+   "task_id": 614,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 67896,
+   "tokens_out": 3105
+  },
+  {
+   "task_id": 635,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 65163,
+   "tokens_out": 4131
+  },
+  {
+   "task_id": 613,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 66746,
+   "tokens_out": 1964
+  },
+  {
+   "task_id": 27,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 12,
+   "tokens_in": 25341,
+   "tokens_out": 1012
+  },
+  {
+   "task_id": 609,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 65192,
+   "tokens_out": 1730
+  },
+  {
+   "task_id": 640,
+   "sites": [
+    "reddit"
+   ],
+   "success": 1.0,
+   "steps": 30,
+   "tokens_in": 67470,
+   "tokens_out": 2109
+  },
+  {
+   "task_id": 617,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 8,
+   "tokens_in": 18397,
+   "tokens_out": 820
+  },
+  {
+   "task_id": 648,
+   "sites": [
+    "reddit"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 65291,
+   "tokens_out": 1808
+  }
+ ]
+}
