@@ -5,14 +5,18 @@ from types import SimpleNamespace
 from wa.run import summarize
 
 ap = argparse.ArgumentParser()
-ap.add_argument("--runs", required=True); ap.add_argument("--config", required=True)
+ap.add_argument("--runs", required=True)
+ap.add_argument("--env", action="append", required=True, help="e.g. __REDDIT__=http://localhost (repeatable)")
 ap.add_argument("--model", required=True); ap.add_argument("--work", required=True)
 a = ap.parse_args()
 work = pathlib.Path(a.work); runs = work / "runs"
+work.mkdir(parents=True, exist_ok=True)
+cfg = work / "config.json"  # built here: JSON inside nested shell quoting broke the first attempt
+cfg.write_text(json.dumps({"environments": {k: {"urls": [v]} for k, v in (e.split("=", 1) for e in a.env)}}))
 shutil.copytree(a.runs, runs, dirs_exist_ok=True)
 for f in runs.glob("*/eval_result.json"):
     f.unlink()  # never reuse the old verdicts
-subprocess.run(["webarena-verified", "eval-tasks", "--config", a.config, "--output-dir", str(runs)], check=False)
+subprocess.run(["webarena-verified", "eval-tasks", "--config", str(cfg), "--output-dir", str(runs)], check=False)
 metas = [json.loads(m.read_text()) for m in runs.glob("*/meta.json")]
 tasks = [{"task_id": m["task_id"], "sites": json.loads((runs / str(m["task_id"]) / "eval_result.json").read_text())["sites"]}
          for m in metas if (runs / str(m["task_id"]) / "eval_result.json").exists()]
