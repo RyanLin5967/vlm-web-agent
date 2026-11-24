@@ -1,0 +1,4 @@
+{"name": "eval_32b_zs_reddit", "site": "reddit", "mode": "eval", "gpu": true, "server": "vllm",
+ "model": "QuantTrio/Qwen3-VL-32B-Instruct-AWQ",
+ "vllm_args": "--tensor-parallel-size 2 --quantization awq --dtype float16 --enforce-eager --max-model-len 8192 --gpu-memory-utilization 0.9 --limit-mm-per-prompt '{\"image\":1}'",
+ "run_args": "--concurrency 8 --seed 0"}
