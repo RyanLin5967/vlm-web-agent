@@ -99,6 +99,7 @@ class Site:
         # mount (no CAP_SYS_ADMIN; measured 2026-11-24, kaggle/site_probe), so the probe is "can /proc be mounted".
         ok = sh(f"chroot {self.root} /bin/true && mount -t proc proc {self.root}/proc && echo PROC_OK")[1]
         self.pre_boot(log)
+        t_boot = time.time()  # restart: pre_boot can download tens of GB (map data) and must not eat the boot deadline
         if "PROC_OK" in ok:
             self.mode = "chroot"
             sh(f"mount --rbind /dev {self.root}/dev; mount --rbind /sys {self.root}/sys")
