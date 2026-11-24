@@ -15,10 +15,11 @@ info = write_rows([(ep, "Find order 7 total")] * 2, d / "rows.jsonl")
 assert info["steps"] == 4, info
 out = d / "ckpt"
 r = subprocess.run([sys.executable, "-m", "wa.sft", "--data", str(d / "rows.jsonl"), "--out", str(out), "--base", base,
-                    "--epochs", "1", "--global_batch", "2", "--rank", "8"], cwd=pathlib.Path(__file__).resolve().parent.parent)
+                    "--epochs", "1", "--global_batch", "2", "--rank", "8", "--merge_out", str(d / "merged")], cwd=pathlib.Path(__file__).resolve().parent.parent)
 assert r.returncode == 0, "sft failed"
 log = [json.loads(l) for l in open(out / "train_log.jsonl")]
 assert len(log) == 2 and all(l["loss"] == l["loss"] for l in log), log
+assert (d / "merged" / "config.json").exists() and any((d / "merged").glob("*.safetensors"))
 assert (out / "adapter_config.json").exists() and json.load(open(out / "train_meta.json"))["seen"] == 4
 # label mask: decoded supervised tokens == target + eos
 from transformers import AutoProcessor

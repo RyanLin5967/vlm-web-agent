@@ -1,0 +1,25 @@
+{
+ "name": "reddit_2b_r0_eval",
+ "site": "reddit",
+ "gpu": true,
+ "server": "vllm",
+ "inputs": [
+  "wa-train-r0"
+ ],
+ "model": "/kaggle/input/wa-train-r0/merged",
+ "vllm_args": "--dtype float16 --enforce-eager --max-model-len 8192 --gpu-memory-utilization 0.85 --limit-mm-per-prompt '{\"image\":1}'",
+ "steps": [
+  {
+   "mode": "devval",
+   "out": "out_dev",
+   "hours": 1,
+   "run_args": "--concurrency 8 --seed 0 --tasks-file /kaggle/input/wa-train-r0/data/dev_tasks.jsonl"
+  },
+  {
+   "mode": "eval",
+   "out": "out_eval",
+   "hours": 6,
+   "run_args": "--concurrency 8 --seed 0"
+  }
+ ]
+}

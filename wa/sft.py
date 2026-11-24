@@ -64,6 +64,7 @@ def main():
     ap.add_argument("--dtype", default="float16", choices=["float16", "bfloat16", "float32"])
     ap.add_argument("--limit_hours", type=float, default=10.5)  # stop and save before Kaggle's 12 h cutoff
     ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--merge_out", default="")
     a = ap.parse_args()
 
     from peft import LoraConfig, get_peft_model
@@ -132,6 +133,11 @@ def main():
                 break
     model.save_pretrained(a.out)
     processor.save_pretrained(a.out)
+    if a.merge_out:  # full fp16 model for vLLM (no runtime LoRA, so the vision-projector adapter is kept)
+        merged = model.merge_and_unload()
+        merged = merged.to(torch.float16) if dev != "cpu" else merged
+        merged.save_pretrained(a.merge_out, safe_serialization=True)
+        processor.save_pretrained(a.merge_out)
     json.dump({"base": a.base, "rows": len(rows), "seen": seen, "updates": upd, "dropped_too_long": dropped,
                "stopped_early_for_time": stop, "args": vars(a), "elapsed_s": round(time.time() - t0)},
               open(os.path.join(a.out, "train_meta.json"), "w"), indent=1)

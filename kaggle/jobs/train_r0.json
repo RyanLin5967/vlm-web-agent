@@ -1,0 +1,20 @@
+{
+ "name": "train_r0",
+ "gpu": true,
+ "train": true,
+ "inputs": [
+  "wa-reddit-teacher",
+  "wa-shopping-admin-teacher",
+  "wa-shopping-teacher"
+ ],
+ "steps": [
+  {
+   "cmd": "python -m wa.build_data --inputs /kaggle/input --out /kaggle/working/data",
+   "hours": 0.5
+  },
+  {
+   "cmd": "python -m wa.sft --data /kaggle/working/data/train.jsonl --out /kaggle/working/ckpt --epochs 2 --global_batch 64 --lr 2e-4 --rank 64 --max_len 6144 --limit_hours 9.5 --merge_out /kaggle/working/merged",
+   "hours": 10.5
+  }
+ ]
+}
