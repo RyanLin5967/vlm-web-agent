@@ -1,0 +1,7 @@
+{"name": "shopping_32b_eval_collect", "site": "shopping", "gpu": true, "server": "vllm",
+ "model": "QuantTrio/Qwen3-VL-32B-Instruct-AWQ",
+ "vllm_args": "--tensor-parallel-size 2 --quantization awq --dtype float16 --enforce-eager --max-model-len 8192 --gpu-memory-utilization 0.9 --limit-mm-per-prompt '{\"image\":1}'",
+ "steps": [
+   {"mode": "eval", "out": "out_eval", "hours": 3.5, "run_args": "--concurrency 8 --seed 0"},
+   {"mode": "collect", "out": "out_collect", "hours": 6.5, "run_args": "--concurrency 8 --seed 0 --limit 400 --crawl-pages 200"}
+ ]}
