@@ -27,3 +27,7 @@ Append-only. Newest at the bottom. (Not named DECISIONS.md: the global spend-gua
   modal"). Verified no sandboxes running; stopped the empty `wa-sites` app (0 tasks); deleted `infra/` and the
   `modal` dependency so no code path in this repo can launch Modal work. Kaggle free tier only. The earlier
   sandbox probe never started (refused at image build by the old spend limit).
+- Kaggle facts measured 2026-11-24: batch kernels run as root with CAP_SYS_CHROOT and CAP_MKNOD but not
+  CAP_SYS_ADMIN, so chroot works and mount fails; WebArena services die without /proc,/dev -> boot under proot.
+  `/` has ~2.5 TB free. Max 5 concurrent batch sessions. Requesting machine_shape "NvidiaTeslaT4" queued 30+ min;
+  the default GPU shape gave T4x2 immediately.
