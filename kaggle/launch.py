@@ -27,7 +27,7 @@ T0 = time.time()
 try:
     assert sh(f"git clone -q {JOB['repo']} /kaggle/repo && cd /kaggle/repo && git checkout -q {JOB['commit']}") == 0
     sys.path.insert(0, "/kaggle/repo"); os.chdir("/kaggle/repo")
-    sh("pip install -q pillow playwright webarena-verified 2>&1 | tail -2 && python -m playwright install --with-deps chromium 2>&1 | tail -1", 1800)
+    sh("pip install -q pillow playwright webarena-verified sentence-transformers 2>&1 | tail -2 && python -m playwright install --with-deps chromium 2>&1 | tail -1", 1800)
     if JOB.get("gpu"):
         sh("pip install -q -U vllm 2>&1 | tail -2" if JOB.get("server", "vllm") == "vllm" else "pip install -q -U transformers peft accelerate 2>&1 | tail -2", 2400)
     stage("setup", True)
@@ -49,14 +49,16 @@ try:
         else:
             raise RuntimeError("vllm did not come up")
         stage("vllm", True)
-    args = JOB.get("run_args", "")
-    rc = sh(f"python -m wa.run {JOB['mode']} --config /kaggle/wa_config.json --sites {JOB['site']} --model {JOB['model']} "
-            f"--endpoint {JOB.get('endpoint', 'http://localhost:8000/v1')} --out {OUT}/out {args} 2>&1 | tee {OUT}/run.log | tail -40", 11 * 3600)
-    stage("run", rc == 0, rc=rc)
+    steps = JOB.get("steps") or [{"mode": JOB["mode"], "run_args": JOB.get("run_args", ""), "out": "out", "hours": 11}]
+    for i, st in enumerate(steps):  # several steps share one site boot + one model server
+        rc = sh(f"python -m wa.run {st['mode']} --config /kaggle/wa_config.json --sites {JOB['site']} --model {JOB['model']} "
+                f"--endpoint {JOB.get('endpoint', 'http://localhost:8000/v1')} --out {OUT}/{st['out']} {st.get('run_args', '')} "
+                f"2>&1 | tee {OUT}/run_{i}.log | tail -40", int(st.get("hours", 5) * 3600))
+        stage(f"run_{i}_{st['mode']}", rc == 0, rc=rc)
 except Exception as e:
     status["error"] = traceback.format_exc()[-3000:]; json.dump(status, open(f"{OUT}/status.json", "w"), indent=1); print(status["error"])
 finally:
-    sh(f"cd {OUT} && tar czf runs_trimmed.tgz --exclude='*.har' out 2>/dev/null; du -sh {OUT}/* | tail -20")
+    sh(f"cd {OUT} && tar czf runs_trimmed.tgz --exclude='*.har' out* 2>/dev/null; du -sh {OUT}/* | tail -20")
 '''
 
 
