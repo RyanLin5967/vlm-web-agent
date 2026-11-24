@@ -1,0 +1,2 @@
+{"name": "smoke_gitlab", "site": "gitlab", "mode": "eval", "model": "scripted", "gpu": false,
+ "endpoint": "none", "run_args": "--limit 5 --concurrency 2"}
