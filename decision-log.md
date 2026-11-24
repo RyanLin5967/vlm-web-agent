@@ -78,3 +78,9 @@ Append-only. Newest at the bottom. (Not named DECISIONS.md: the global spend-gua
 - GitLab PARKED: boots under proot after the pg_hba trust fix, logs in (Rails log: POST /users/sign_in 302,
   GET / 200 as byteblaze), but the same URLs flap between 200 and 500 and gitaly-ruby sidecar sockets fail to
   connect. Not reliable enough to score 180 tasks. Revisit after the 3 working sites have results.
+- Map BLOCKED (external): all three map data tarballs on webarena-map-server-data.s3.amazonaws.com return
+  403 AccessDenied (checked 2026-11-24 21:10 UTC with curl -I from the Mac and from a Kaggle kernel); no mirror
+  found. Rebuilding tile/Nominatim/OSRM databases from raw OSM is out of scope on free CPU.
+- **Evaluation scope = tasks whose sites are all in {shopping, shopping_admin, reddit}: 187+182+106+5 = 480/812
+  (59%).** Every model in the table is scored on exactly this set; the table says so. GitLab (180+24) parked
+  (flaky 500s under proot), map/wikipedia (109+17+2+6) blocked.
