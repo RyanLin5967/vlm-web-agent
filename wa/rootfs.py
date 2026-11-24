@@ -74,9 +74,11 @@ class Site:
             return f"chroot {self.root}"
         return f"proot -0 -r {self.root} -b /proc -b /dev -b /sys"
 
-    def boot(self, log=print, deadline_s: int = 1200) -> float:
+    def boot(self, log=print, deadline_s: int = 1500) -> float:
         t0 = time.time()
         cfg = pull_rootfs(self.image, self.root, log)
+        self.pull_s = time.time() - t0
+        t_boot = time.time()  # health deadline counts boot only, not the download (gitlab: 31.6 GB)
         # chroot alone is not enough: services need /proc and /dev inside the root. Kaggle allows chroot but not
         # mount (no CAP_SYS_ADMIN; measured 2026-11-24, kaggle/site_probe), so the probe is "can /proc be mounted".
         ok = sh(f"chroot {self.root} /bin/true && mount -t proc proc {self.root}/proc && echo PROC_OK")[1]
@@ -93,7 +95,7 @@ class Site:
         self.log = open(f"/kaggle/working/site_{self.name}.log", "w") if os.path.isdir("/kaggle/working") else subprocess.DEVNULL
         self.proc = subprocess.Popen(
             ["bash", "-lc", f"{self.env_prefix} {self.runner()} /bin/sh -c 'cd {wd}; exec {entry}'"], stdout=self.log, stderr=subprocess.STDOUT)
-        while time.time() - t0 < deadline_s:
+        while time.time() - t_boot < deadline_s:
             _, code = sh(f"curl -s -o /dev/null -w '%{{http_code}}' http://localhost:{self.port}{self.health}", 30)
             if code.strip() in {"200", "302"}:
                 break
@@ -118,7 +120,8 @@ class Site:
         return chk
 
     def diagnose(self) -> str:
-        out = [sh(f"{self.runner()} supervisorctl status", 60)[1]]
+        out = [sh(f"{self.runner()} sh -c 'supervisorctl status || gitlab-ctl status'", 60)[1],
+               sh(f"curl -s -m 30 -o /dev/null -w '%{{http_code}}' http://localhost:{self.port}{self.health}", 60)[1]]
         out.append(sh(f"for f in {self.root}/var/log/supervisor/*.log {self.root}/var/log/*.log {self.root}/var/log/*/*.log; do "
                       f"echo == $f; tail -n 15 $f; done 2>/dev/null | tail -n 150", 60)[1])
         return "\n".join(out)[-6000:]
