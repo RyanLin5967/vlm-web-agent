@@ -50,7 +50,7 @@ try:
             if sh("curl -sf localhost:8000/v1/models > /dev/null", 20) == 0: break
             if vp.poll() is not None:  # server died: fail now with its errors, not after the 40-min wait
                 errs = [l for l in open(f"{OUT}/vllm.log") if "Error" in l or "error" in l][-15:]
-                raise RuntimeError("model server exited rc=%s\n%s" % (vp.returncode, "".join(errs)))
+                raise RuntimeError("model server exited rc=" + str(vp.returncode) + "\n" + "".join(errs))
             time.sleep(10)
         else:
             raise RuntimeError("model server did not come up in 40 min")
