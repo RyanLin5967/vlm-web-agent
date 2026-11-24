@@ -33,3 +33,17 @@ def test_marks_and_actions(tmp_path):
             assert "not on the current screen" in await execute(page, {"action": "click", "id": 99}, o2["elements"])
             await b.close()
     asyncio.run(go())
+
+def test_observe_survives_navigation_race():
+    async def go():
+        async with async_playwright() as p:
+            b = await p.chromium.launch()
+            page = await (await b.new_context(viewport=VIEWPORT)).new_page()
+            await page.set_content("<a href='about:blank'>x</a><script>setTimeout(()=>location.href='data:text/html,<button>after</button>', 30)</script>")
+            o = None
+            for _ in range(20):  # observe repeatedly across the navigation; must never raise
+                o = await observe(page)
+                await page.wait_for_timeout(10)
+            assert [e["name"] for e in o["elements"]] == ["after"]
+            await b.close()
+    asyncio.run(go())

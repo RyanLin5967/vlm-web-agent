@@ -106,14 +106,25 @@ def draw_som(png: bytes, elements: list[dict], som: bool = True) -> Image.Image:
     return img
 
 
-async def observe(page, som: bool = True) -> dict:
-    """Mark the page, screenshot it, return {image, elements, text, url, title}."""
-    try:
-        await page.wait_for_load_state("domcontentloaded", timeout=10000)
-    except Exception:  # noqa: BLE001
-        pass
-    data = await page.evaluate(MARK_JS)
-    png = await page.screenshot(type="png")
+async def observe(page, som: bool = True, tries: int = 4) -> dict:
+    """Mark the page, screenshot it, return {image, elements, text, url, title}.
+    Retries when a navigation lands mid-observation ("Execution context was destroyed"): that is a race in the
+    harness, not a policy failure, and it used to end the episode."""
+    for k in range(tries):
+        try:
+            await page.wait_for_load_state("domcontentloaded", timeout=10000)
+        except Exception:  # noqa: BLE001
+            pass
+        try:
+            data = await page.evaluate(MARK_JS)
+            png = await page.screenshot(type="png")
+            break
+        except Exception as e:  # noqa: BLE001
+            transient = any(m in str(e) for m in ("Execution context was destroyed", "navigation", "Target closed",
+                                                   "Cannot find context"))
+            if not transient or k == tries - 1:
+                raise
+            await page.wait_for_timeout(1000)
     return {
         "image": draw_som(png, data["elements"], som),
         "elements": data["elements"],
