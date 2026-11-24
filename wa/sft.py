@@ -34,9 +34,10 @@ def encode(processor, row, max_len, max_pixels):
     prompt = processor.apply_chat_template(msgs, tokenize=False, add_generation_prompt=True,
                                            enable_thinking=False)
     full = prompt + row["target"] + processor.tokenizer.eos_token
+    if max_pixels and img.width * img.height > max_pixels:  # spec: fit the model's pixel budget
+        f = (max_pixels / (img.width * img.height)) ** 0.5
+        img = img.resize((int(img.width * f), int(img.height * f)))
     kw = {"images": [img], "return_tensors": "pt"}
-    if max_pixels:
-        kw["images_kwargs"] = {"max_pixels": max_pixels}
     enc_p = processor(text=[prompt], **kw)
     enc_f = processor(text=[full], **kw)
     ids = enc_f["input_ids"][0]
@@ -53,7 +54,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--data", required=True)
     ap.add_argument("--out", required=True)
-    ap.add_argument("--base", default="Qwen/Qwen3.5-2B")
+    ap.add_argument("--base", default="Qwen/Qwen3-VL-2B-Instruct")
     ap.add_argument("--epochs", type=float, default=2)
     ap.add_argument("--lr", type=float, default=2e-4)
     ap.add_argument("--global_batch", type=int, default=64)
@@ -79,7 +80,7 @@ def main():
     lm_targets = [t for t in ["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj",
                               "in_proj_qkvz", "in_proj_ba", "out_proj"] if t in names]
     # vision projector / merger linears (names differ across Qwen-VL versions)
-    proj = [n for n, m in model.named_modules() if isinstance(m, torch.nn.Linear) and "merger" in n]
+    proj = [n for n, m in model.named_modules() if isinstance(m, torch.nn.Linear) and "merger" in n and "visual" in n]
     cfg = LoraConfig(r=a.rank, lora_alpha=2 * a.rank, lora_dropout=0.05, target_modules=lm_targets + proj,
                      task_type="CAUSAL_LM")
     model = get_peft_model(model, cfg)
