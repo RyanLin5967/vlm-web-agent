@@ -18,7 +18,8 @@ JOB = json.loads(%(job)r)
 OUT = "/kaggle/working"
 def sh(c, t=3600):
     print("+", c[:200], flush=True)
-    r = subprocess.run(["bash", "-lc", f"timeout {t} bash -lc {shlex.quote(c)}"], capture_output=True, text=True)
+    # pipefail: steps run as `cmd | tee log | tail`; without it the step's rc is tail's 0 and a REFUSE reads as ok
+    r = subprocess.run(["bash", "-lc", f"timeout {t} bash -o pipefail -lc {shlex.quote(c)}"], capture_output=True, text=True)
     print((r.stdout + r.stderr)[-2000:], flush=True); return r.returncode
 status = {"job": JOB, "stages": {}}
 def stage(n, ok, **kw):
