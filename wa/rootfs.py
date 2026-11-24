@@ -100,11 +100,12 @@ class Site:
     def boot(self, log=print, deadline_s: int = 1800) -> float:
         t0 = time.time()
         cfg = pull_rootfs(self.image, self.root, log)
-        if "CHROOT_OK" in sh(f"chroot {self.root} /bin/true && echo CHROOT_OK")[1]:
+        # chroot alone is not enough: services need /proc and /dev inside the root. Kaggle allows chroot but not
+        # mount (no CAP_SYS_ADMIN; measured 2026-11-24, kaggle/site_probe), so the probe is "can /proc be mounted".
+        ok = sh(f"chroot {self.root} /bin/true && mount -t proc proc {self.root}/proc && echo PROC_OK")[1]
+        if "PROC_OK" in ok:
             self.mode = "chroot"
-            for m in ("proc", "dev", "sys"):
-                sh(f"mount --rbind /{m} {self.root}/{m} || mount -t {m} {m} {self.root}/{m}")
-            sh(f"mkdir -p {self.root}/dev/shm && mount -t tmpfs tmpfs {self.root}/dev/shm")
+            sh(f"mount --rbind /dev {self.root}/dev; mount --rbind /sys {self.root}/sys")
         else:
             self.mode = "proot"
             sh("command -v proot || (curl -sL -o /usr/local/bin/proot https://proot.gitlab.io/proot/bin/proot && chmod +x /usr/local/bin/proot)")
