@@ -67,7 +67,9 @@ class Site:
 
     @property
     def base_url(self) -> str:
-        return f"http://localhost:{self.port}"
+        # browsers drop a default :80, so the HAR records http://localhost/...; the evaluator's URL regexes are built
+        # from this string, so it must match exactly (an explicit :80 scored every network event as missing)
+        return "http://localhost" if self.port == 80 else f"http://localhost:{self.port}"
 
     def runner(self) -> str:
         if self.mode == "chroot":

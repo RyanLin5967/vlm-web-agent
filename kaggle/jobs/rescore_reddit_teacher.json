@@ -1,0 +1,13 @@
+{
+ "name": "rescore_reddit_teacher",
+ "gpu": false,
+ "inputs": [
+  "wa-reddit-teacher"
+ ],
+ "steps": [
+  {
+   "cmd": "echo '{\"environments\": {\"__REDDIT__\": {\"urls\": [\"http://localhost\"]}}}' > /kaggle/cfg.json && python -m wa.rescore --runs /kaggle/in/wa-reddit-teacher/out_eval/runs --config /kaggle/cfg.json --model QuantTrio/Qwen3-VL-30B-A3B-Instruct-AWQ --work /kaggle/working/out_rescore",
+   "hours": 1
+  }
+ ]
+}

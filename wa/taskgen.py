@@ -31,7 +31,10 @@ SITE_BLURB = {
 async def crawl(browser, site: str, base_url: str, state_path, max_pages: int = 300, seed: int = 0) -> list[dict]:
     ctx = await browser.new_context(viewport=VIEWPORT, storage_state=str(state_path) if state_path else None)
     page = await ctx.new_page()
-    origin = urlparse(base_url).netloc
+    def host(u):  # treat http://h:80 and http://h as the same origin
+        n = urlparse(u).netloc
+        return n[:-3] if n.endswith(":80") else n
+    origin = host(base_url)
     rng = random.Random(seed)
     frontier, seen, pages = [base_url], {base_url}, []
     while frontier and len(pages) < max_pages:
@@ -46,7 +49,7 @@ async def crawl(browser, site: str, base_url: str, state_path, max_pages: int = 
                       "text": re.sub(r"\n\s*\n+", "\n", text)[:6000]})
         for link in links:
             link = urldefrag(link)[0]
-            if urlparse(link).netloc == origin and link not in seen and not SKIP.search(link):
+            if host(link) == origin and link not in seen and not SKIP.search(link):
                 seen.add(link)
                 frontier.append(link)
     await ctx.close()
