@@ -117,11 +117,11 @@ async def observe(page, som: bool = True, tries: int = 4) -> dict:
             pass
         try:
             data = await page.evaluate(MARK_JS)
-            png = await page.screenshot(type="png")
+            png = await page.screenshot(type="png", timeout=10000)
             break
         except Exception as e:  # noqa: BLE001
             transient = any(m in str(e) for m in ("Execution context was destroyed", "navigation", "Target closed",
-                                                   "Cannot find context"))
+                                                   "Cannot find context", "Timeout"))
             if not transient or k == tries - 1:
                 raise
             await page.wait_for_timeout(1000)

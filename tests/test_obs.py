@@ -35,15 +35,24 @@ def test_marks_and_actions(tmp_path):
     asyncio.run(go())
 
 def test_observe_survives_navigation_race():
+    import http.server, threading
+    pages = {"/": b"<a href='/x'>x</a><script>setTimeout(()=>location.href='/after', 40)</script>",
+             "/after": b"<button>after</button>"}
+    class H(http.server.BaseHTTPRequestHandler):
+        def do_GET(self):
+            self.send_response(200); self.send_header("Content-Type", "text/html"); self.end_headers(); self.wfile.write(pages.get(self.path, b""))
+        def log_message(self, *a): pass
+    srv = http.server.ThreadingHTTPServer(("127.0.0.1", 0), H); threading.Thread(target=srv.serve_forever, daemon=True).start()
     async def go():
         async with async_playwright() as p:
             b = await p.chromium.launch()
             page = await (await b.new_context(viewport=VIEWPORT)).new_page()
-            await page.set_content("<a href='about:blank'>x</a><script>setTimeout(()=>location.href='data:text/html,<button>after</button>', 30)</script>")
+            await page.goto(f"http://127.0.0.1:{srv.server_address[1]}/")
             o = None
-            for _ in range(20):  # observe repeatedly across the navigation; must never raise
+            for _ in range(30):  # observe repeatedly across the navigation; must never raise
                 o = await observe(page)
-                await page.wait_for_timeout(10)
-            assert [e["name"] for e in o["elements"]] == ["after"]
+                await page.wait_for_timeout(5)
+            assert page.url.endswith("/after") and [e["name"] for e in o["elements"]] == ["after"]
             await b.close()
     asyncio.run(go())
+    srv.shutdown()
