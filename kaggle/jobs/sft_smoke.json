@@ -1,0 +1,2 @@
+{"name": "sft_smoke", "gpu": false, "train": true,
+ "steps": [{"cmd": "python tests/sft_smoke.py", "hours": 0.5}]}

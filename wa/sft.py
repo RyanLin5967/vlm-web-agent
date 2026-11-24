@@ -70,9 +70,12 @@ def main():
     from transformers import AutoModelForImageTextToText, AutoProcessor
 
     torch.manual_seed(a.seed); random.seed(a.seed)
+    dev = "cuda:0" if torch.cuda.is_available() else "cpu"
+    if dev == "cpu":
+        a.dtype = "float32"  # CPU smoke tests only
     dtype = getattr(torch, a.dtype)
     processor = AutoProcessor.from_pretrained(a.base)
-    model = AutoModelForImageTextToText.from_pretrained(a.base, torch_dtype=dtype, device_map={"": 0},
+    model = AutoModelForImageTextToText.from_pretrained(a.base, torch_dtype=dtype, device_map={"": dev},
                                                         attn_implementation="sdpa")
     model.gradient_checkpointing_enable(gradient_checkpointing_kwargs={"use_reentrant": False})
     model.enable_input_require_grads()
@@ -95,7 +98,7 @@ def main():
     total_updates = max(1, math.ceil(len(rows) * a.epochs / a.global_batch))
     sched = torch.optim.lr_scheduler.LambdaLR(
         opt, lambda s: min(1.0, (s + 1) / max(1, int(0.03 * total_updates))) * 0.5 * (1 + math.cos(math.pi * min(1.0, s / total_updates))))
-    scaler = torch.amp.GradScaler("cuda", enabled=a.dtype == "float16")
+    scaler = torch.amp.GradScaler("cuda", enabled=a.dtype == "float16" and dev != "cpu")
     model.train()
     t0, seen, upd, dropped, losses = time.time(), 0, 0, 0, []
     os.makedirs(a.out, exist_ok=True)
@@ -108,8 +111,8 @@ def main():
         if enc is None:
             dropped += 1
             continue
-        enc = {k: v.to(0) for k, v in enc.items()}
-        with torch.autocast("cuda", dtype=dtype, enabled=a.dtype != "float32"):
+        enc = {k: v.to(dev) for k, v in enc.items()}
+        with torch.autocast("cuda" if dev != "cpu" else "cpu", dtype=dtype, enabled=a.dtype != "float32"):
             out = model(**enc)
         loss = out.loss / a.global_batch
         scaler.scale(loss).backward()
