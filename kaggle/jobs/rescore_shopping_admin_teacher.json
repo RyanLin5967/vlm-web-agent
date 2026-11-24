@@ -1,0 +1,13 @@
+{
+ "name": "rescore_shopping_admin_teacher",
+ "gpu": false,
+ "inputs": [
+  "wa-shopping-admin-teacher"
+ ],
+ "steps": [
+  {
+   "cmd": "python -m wa.rescore --runs /kaggle/in/wa-shopping-admin-teacher/out_eval/runs --env __SHOPPING_ADMIN__=http://localhost/admin --model QuantTrio/Qwen3-VL-30B-A3B-Instruct-AWQ --work /kaggle/working/out_rescore",
+   "hours": 1
+  }
+ ]
+}
