@@ -9,9 +9,7 @@ import json
 import os
 import shutil
 import subprocess
-import tarfile
 import time
-import urllib.request
 
 SITES = {  # image suffix, port the site serves on inside the container, health path
     "shopping_admin": ("shopping_admin", 80, "/admin"),
@@ -19,8 +17,6 @@ SITES = {  # image suffix, port the site serves on inside the container, health 
     "reddit": ("reddit", 80, "/"),
     "gitlab": ("gitlab", 8023, "/explore"),
 }
-ACCEPT = ("application/vnd.oci.image.index.v1+json, application/vnd.docker.distribution.manifest.list.v2+json, "
-          "application/vnd.docker.distribution.manifest.v2+json, application/vnd.oci.image.manifest.v1+json")
 
 
 def sh(c: str, t: int = 600) -> tuple[int, str]:
@@ -35,48 +31,29 @@ def _rm(p):
         shutil.rmtree(p)
 
 
+CRANE_URL = "https://github.com/google/go-containerregistry/releases/latest/download/go-containerregistry_Linux_x86_64.tar.gz"
+
+
 def pull_rootfs(image: str, root: str, log=print) -> dict:
-    tok = json.load(urllib.request.urlopen(
-        f"https://auth.docker.io/token?service=registry.docker.io&scope=repository:{image}:pull"))["token"]
-
-    def get(path, accept=None):
-        req = urllib.request.Request(f"https://registry-1.docker.io/v2/{image}/{path}", headers={"Authorization": f"Bearer {tok}"})
-        if accept:
-            req.add_header("Accept", accept)
-        return urllib.request.urlopen(req, timeout=900)
-
-    m = json.load(get("manifests/latest", ACCEPT))
-    if "manifests" in m:
-        d = [x for x in m["manifests"] if x.get("platform", {}).get("architecture") == "amd64"][0]["digest"]
-        m = json.load(get(f"manifests/{d}", ACCEPT))
-    cfg = json.load(get(f"blobs/{m['config']['digest']}"))["config"]
+    """Flatten the image with `crane export` (correct whiteout semantics) and untar it into root.
+    A hand-rolled streaming extractor lost files here: an opaque-whiteout marker met mid-layer also deleted that
+    same layer's files (shopping_admin rootfs came out 1.7 GB, missing nginx/php-fpm configs and InnoDB files)."""
+    if sh("command -v crane")[0] != 0:
+        rc, out = sh(f"curl -sL {CRANE_URL} | tar -xz -C /usr/local/bin crane && chmod +x /usr/local/bin/crane", 300)
+        if rc != 0:
+            raise RuntimeError(f"crane download failed: {out}")
     os.makedirs(root, exist_ok=True)
-    for i, layer in enumerate(m["layers"]):
-        with get(f"blobs/{layer['digest']}") as resp, tarfile.open(fileobj=resp, mode="r|*") as tf:
-            for mem in tf:
-                name = mem.name.lstrip("./")
-                base, leaf = os.path.split(name)
-                if leaf == ".wh..wh..opq":
-                    d = os.path.join(root, base)
-                    if os.path.isdir(d):
-                        for x in os.listdir(d):
-                            _rm(os.path.join(d, x))
-                    continue
-                if leaf.startswith(".wh."):
-                    _rm(os.path.join(root, base, leaf[4:]))
-                    continue
-                if mem.ischr() or mem.isblk() or mem.isfifo():
-                    continue
-                dst = os.path.join(root, name)
-                if os.path.lexists(dst) and not (os.path.isdir(dst) and not os.path.islink(dst) and mem.isdir()):
-                    _rm(dst)
-                try:
-                    tf.extract(mem, root, set_attrs=True, numeric_owner=True)
-                except Exception:  # noqa: BLE001
-                    pass
-        log(f"layer {i + 1}/{len(m['layers'])}")
+    rc, out = sh(f"crane export --platform linux/amd64 {image}:latest - | tar -x -p --numeric-owner -C {root}", 3600)
+    if rc != 0:
+        raise RuntimeError(f"crane export failed: {out}")
+    cfg = json.loads(subprocess.check_output(["crane", "config", "--platform", "linux/amd64", f"{image}:latest"], text=True))["config"]
     for f in ("etc/resolv.conf", "etc/hosts"):
+        try:
+            os.remove(os.path.join(root, f))
+        except FileNotFoundError:
+            pass
         shutil.copy(f"/{f}", os.path.join(root, f))
+    log(f"rootfs {sh(f'du -sh {root}')[1].split()[0]}")
     return cfg
 
 
@@ -97,7 +74,7 @@ class Site:
             return f"chroot {self.root}"
         return f"proot -0 -r {self.root} -b /proc -b /dev -b /sys"
 
-    def boot(self, log=print, deadline_s: int = 1800) -> float:
+    def boot(self, log=print, deadline_s: int = 1200) -> float:
         t0 = time.time()
         cfg = pull_rootfs(self.image, self.root, log)
         # chroot alone is not enough: services need /proc and /dev inside the root. Kaggle allows chroot but not
@@ -121,13 +98,19 @@ class Site:
             if code.strip() in {"200", "302"}:
                 break
             if self.proc.poll() is not None:
-                raise RuntimeError(f"{self.name} entrypoint exited {self.proc.returncode}")
+                raise RuntimeError(f"{self.name} entrypoint exited {self.proc.returncode}\n{self.diagnose()}")
             time.sleep(10)
         else:
-            raise RuntimeError(f"{self.name} not healthy after {deadline_s}s")
+            raise RuntimeError(f"{self.name} not healthy after {deadline_s}s\n{self.diagnose()}")
         rc, out = sh(f"{self.runner()} env-ctrl init --base-url {self.base_url}/ 2>&1 | tail -3", 900)
         log(f"env-ctrl init rc={rc}: {out[-300:]}")
         return time.time() - t0
+
+    def diagnose(self) -> str:
+        out = [sh(f"{self.runner()} supervisorctl status", 60)[1]]
+        out.append(sh(f"for f in {self.root}/var/log/supervisor/*.log {self.root}/var/log/*.log {self.root}/var/log/*/*.log; do "
+                      f"echo == $f; tail -n 15 $f; done 2>/dev/null | tail -n 150", 60)[1])
+        return "\n".join(out)[-6000:]
 
     def config_entry(self) -> tuple[str, dict]:
         key = f"__{self.name.upper()}__"

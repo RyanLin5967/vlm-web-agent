@@ -31,3 +31,6 @@ Append-only. Newest at the bottom. (Not named DECISIONS.md: the global spend-gua
   CAP_SYS_ADMIN, so chroot works and mount fails; WebArena services die without /proc,/dev -> boot under proot.
   `/` has ~2.5 TB free. Max 5 concurrent batch sessions. Requesting machine_shape "NvidiaTeslaT4" queued 30+ min;
   the default GPU shape gave T4x2 immediately.
+- Site boot root cause (probe v2): services died because my streaming layer extractor LOST FILES (missing nginx
+  conf sample, php-fpm.conf, InnoDB .ibd files; rootfs 1.7 GB), not only for lack of /proc. Switched to
+  `crane export` (go-containerregistry), which flattens layers with correct whiteout semantics.
