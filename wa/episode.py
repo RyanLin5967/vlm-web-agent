@@ -110,6 +110,12 @@ async def run_episode(browser, task: dict, policy, out_dir: pathlib.Path, state_
     except Exception as e:  # noqa: BLE001 — an env failure ends the episode, recorded, never silently
         steps.append({"step": len(steps), "env_error": repr(e)[:500]})
     finally:
+        final_url = page.url
+        try:
+            final_png = await page.screenshot(type="png")
+            (out_dir / "final.png").write_bytes(final_png)
+        except Exception:  # noqa: BLE001
+            pass
         await ctx.close()  # flushes the HAR
     if answer is None:
         answer = {"task_type": "RETRIEVE", "status": "UNKNOWN_ERROR", "retrieved_data": None,
@@ -119,6 +125,6 @@ async def run_episode(browser, task: dict, policy, out_dir: pathlib.Path, state_
         for s in steps:
             f.write(json.dumps(s, ensure_ascii=False) + "\n")
     meta = {"task_id": task["task_id"], "steps": len(steps), "stopped": answer.get("error_details") != "no stop action within the step limit",
-            "usage": usage, "wall_s": round(time.time() - t0, 1), "system": system}
+            "final_url": final_url, "usage": usage, "wall_s": round(time.time() - t0, 1), "system": system}
     (out_dir / "meta.json").write_text(json.dumps(meta))
     return meta
