@@ -69,8 +69,7 @@ def main():
     meta = {"id": f"ryanlin5967/{slug}", "title": slug, "code_file": "run.py", "language": "python", "kernel_type": "script",
             "is_private": True, "enable_gpu": bool(job.get("gpu")), "enable_internet": True,
             "dataset_sources": [], "competition_sources": [], "kernel_sources": []}
-    if job.get("gpu"):
-        meta["machine_shape"] = "NvidiaTeslaT4"
+    # no machine_shape: the default GPU is T4x2 and starts at once; "NvidiaTeslaT4" sat QUEUED 30+ min (2026-11-24)
     (d / "kernel-metadata.json").write_text(json.dumps(meta))
     env = dict(os.environ, KAGGLE_API_TOKEN=pathlib.Path("~/.config/kaggle/token").expanduser().read_text().strip())
     r = subprocess.run(["uvx", "--quiet", "--with", "six", "kaggle", "kernels", "push", "-p", str(d)], env=env,
