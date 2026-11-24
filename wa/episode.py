@@ -5,6 +5,7 @@ Login follows WebArena-Verified's reference agent: UI login in a separate contex
 by the task context, so login traffic never appears in the task's HAR."""
 from __future__ import annotations
 
+import asyncio
 import json
 import pathlib
 import re
@@ -84,7 +85,7 @@ async def run_episode(browser, task: dict, policy, out_dir: pathlib.Path, state_
                 page = ctx.pages[-1]
             obs = await observe(page, som=som)
             msgs = build_messages(system, task["intent"], obs, history, last_error, som=som)
-            raw, u = policy(msgs)
+            raw, u = await asyncio.to_thread(policy, msgs)  # keep other episodes running
             usage["in"] += u["in"]; usage["out"] += u["out"]; usage["calls"] += 1
             rec = {"step": step, "url": obs["url"], "raw": raw, "elements": obs["elements"], "text": obs["text"],
                    "title": obs["title"], "scroll": obs["scroll"], "history": history[-8:], "last_error": last_error}

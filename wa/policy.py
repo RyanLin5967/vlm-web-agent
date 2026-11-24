@@ -53,12 +53,16 @@ def to_openai(messages: list[dict]) -> list[dict]:
 
 
 class OpenAIPolicy:
-    def __init__(self, base_url: str, model: str, temperature: float = 0.0, max_tokens: int = 384, api_key: str = "x"):
+    def __init__(self, base_url: str, model: str, temperature: float = 0.0, max_tokens: int = 384, api_key: str = "x",
+                 seed: int | None = None):
         self.base_url, self.model, self.temperature, self.max_tokens, self.api_key = base_url.rstrip("/"), model, temperature, max_tokens, api_key
+        self.seed = seed
 
     def __call__(self, messages: list[dict]) -> tuple[str, dict]:
         body = {"model": self.model, "messages": to_openai(messages), "temperature": self.temperature,
                 "max_tokens": self.max_tokens}
+        if self.seed is not None:
+            body["seed"] = self.seed
         if "qwen3.5" in self.model.lower():  # identical setting for every Qwen3.5 size: no thinking blocks
             body["chat_template_kwargs"] = {"enable_thinking": False}
         req = urllib.request.Request(f"{self.base_url}/chat/completions", data=json.dumps(body).encode(),
