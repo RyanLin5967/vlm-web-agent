@@ -41,3 +41,10 @@ Append-only. Newest at the bottom. (Not named DECISIONS.md: the global spend-gua
   so fp16 LoRA training on T4 is viable.
 - **Large open baseline = Qwen3-VL-32B-Instruct** (named in the spec; 16x the student), as the 4-bit AWQ build
   QuantTrio/Qwen3-VL-32B-Instruct-AWQ to fit 2xT4. Being probed with the 30B-A3B AWQ (teacher candidate) in gpu_probe3.
+- 2026-11-24 ~16:00 UTC: reddit smoke is a real pass (logged in as MarvelsGrantMan136, elements extracted,
+  2 scripted steps/episode, official eval ran). shopping_admin smoke v1 was a HOLLOW pass: every episode hit
+  ERR_CONNECTION_REFUSED before any policy call, env-ctrl init had failed (image env not passed), and the run
+  still wrote a 0% results file. Fixed + guarded: browser preflight REFUSEs, all-env-failure REFUSEs
+  (tests/test_run_guards.py forces it to fire).
+- GPU contention: the diff-attention project (kernel diffattn-stage-a) runs on the same Kaggle account; Kaggle
+  allows 2 GPU sessions per account and the weekly GPU quota is shared. This project effectively has 1 slot.
