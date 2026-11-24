@@ -69,3 +69,6 @@ Append-only. Newest at the bottom. (Not named DECISIONS.md: the global spend-gua
 - Quoting bug in both sh() helpers: `bash -lc {c!r}` let the OUTER bash expand $vars/$(...) whenever repr chose
   double quotes (old wrapper printed '' for a test that must print "inner single $x sub"). Now shlex.quote;
   tests/test_sh_quoting.py. Earlier diagnostics loops printing only headers were this bug.
+- 30B-A3B shopping_admin (re-scored, PARTIAL: 107/182 episodes finished before the 3 h step cap): 0/107.
+  Verified genuine, not a scoring bug: evaluator compares real wrong values (1 vs 6, 9 vs 3), 6 wrong task_type,
+  85/107 hit the 30-step limit (mean 24.6 steps, 55k input tokens/task).

@@ -1,0 +1,1098 @@
+{
+ "model": "QuantTrio/Qwen3-VL-30B-A3B-Instruct-AWQ",
+ "endpoint": "rescore",
+ "seed": 0,
+ "temperature": 0.0,
+ "som": true,
+ "date_utc": "2026-11-24T20:22:24Z",
+ "n_tasks": 107,
+ "n_missing_eval": 0,
+ "n_selected": 107,
+ "success": 0.0,
+ "ci95": [
+  0.0,
+  0.0
+ ],
+ "per_site": {
+  "shopping_admin": {
+   "n": 107,
+   "success": 0.0
+  }
+ },
+ "mean_steps": 24.570093457943926,
+ "mean_tokens_in": 54976.63551401869,
+ "mean_tokens_out": 2116.0186915887853,
+ "wall_s": 0,
+ "rows": [
+  {
+   "task_id": 346,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 25,
+   "tokens_in": 54319,
+   "tokens_out": 2244
+  },
+  {
+   "task_id": 471,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 66499,
+   "tokens_out": 2018
+  },
+  {
+   "task_id": 157,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 67210,
+   "tokens_out": 2045
+  },
+  {
+   "task_id": 472,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 66358,
+   "tokens_out": 2073
+  },
+  {
+   "task_id": 195,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 68323,
+   "tokens_out": 2643
+  },
+  {
+   "task_id": 458,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 22,
+   "tokens_in": 48754,
+   "tokens_out": 2156
+  },
+  {
+   "task_id": 217,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 9,
+   "tokens_in": 20264,
+   "tokens_out": 958
+  },
+  {
+   "task_id": 121,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 67236,
+   "tokens_out": 1989
+  },
+  {
+   "task_id": 12,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 68052,
+   "tokens_out": 2531
+  },
+  {
+   "task_id": 374,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 66299,
+   "tokens_out": 2921
+  },
+  {
+   "task_id": 244,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 8,
+   "tokens_in": 15242,
+   "tokens_out": 983
+  },
+  {
+   "task_id": 197,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 13,
+   "tokens_in": 26983,
+   "tokens_out": 1145
+  },
+  {
+   "task_id": 183,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 66167,
+   "tokens_out": 2300
+  },
+  {
+   "task_id": 116,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 66636,
+   "tokens_out": 2389
+  },
+  {
+   "task_id": 470,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 66509,
+   "tokens_out": 2054
+  },
+  {
+   "task_id": 109,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 7,
+   "tokens_in": 16833,
+   "tokens_out": 921
+  },
+  {
+   "task_id": 65,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 19,
+   "tokens_in": 42518,
+   "tokens_out": 1846
+  },
+  {
+   "task_id": 119,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 67289,
+   "tokens_out": 1936
+  },
+  {
+   "task_id": 14,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 21,
+   "tokens_in": 47680,
+   "tokens_out": 1907
+  },
+  {
+   "task_id": 453,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 66424,
+   "tokens_out": 1932
+  },
+  {
+   "task_id": 186,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 67337,
+   "tokens_out": 2726
+  },
+  {
+   "task_id": 77,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 66600,
+   "tokens_out": 3035
+  },
+  {
+   "task_id": 42,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 68028,
+   "tokens_out": 2441
+  },
+  {
+   "task_id": 111,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 70587,
+   "tokens_out": 3254
+  },
+  {
+   "task_id": 455,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 66150,
+   "tokens_out": 1910
+  },
+  {
+   "task_id": 464,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 68429,
+   "tokens_out": 2110
+  },
+  {
+   "task_id": 185,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 66006,
+   "tokens_out": 1925
+  },
+  {
+   "task_id": 5,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 19,
+   "tokens_in": 44218,
+   "tokens_out": 1679
+  },
+  {
+   "task_id": 184,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 67002,
+   "tokens_out": 2645
+  },
+  {
+   "task_id": 129,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 2,
+   "tokens_in": 4325,
+   "tokens_out": 250
+  },
+  {
+   "task_id": 456,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 66203,
+   "tokens_out": 1906
+  },
+  {
+   "task_id": 196,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 68717,
+   "tokens_out": 2356
+  },
+  {
+   "task_id": 215,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 24,
+   "tokens_in": 51835,
+   "tokens_out": 1777
+  },
+  {
+   "task_id": 130,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 5,
+   "tokens_in": 11127,
+   "tokens_out": 501
+  },
+  {
+   "task_id": 113,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 66990,
+   "tokens_out": 2738
+  },
+  {
+   "task_id": 0,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 72132,
+   "tokens_out": 7761
+  },
+  {
+   "task_id": 193,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 1,
+   "tokens_in": 2198,
+   "tokens_out": 126
+  },
+  {
+   "task_id": 454,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 66049,
+   "tokens_out": 1938
+  },
+  {
+   "task_id": 122,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 67241,
+   "tokens_out": 1930
+  },
+  {
+   "task_id": 291,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 69115,
+   "tokens_out": 2551
+  },
+  {
+   "task_id": 462,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 65738,
+   "tokens_out": 1979
+  },
+  {
+   "task_id": 123,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 66998,
+   "tokens_out": 1999
+  },
+  {
+   "task_id": 289,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 20,
+   "tokens_in": 42771,
+   "tokens_out": 1294
+  },
+  {
+   "task_id": 216,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 67141,
+   "tokens_out": 2344
+  },
+  {
+   "task_id": 288,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 66983,
+   "tokens_out": 2062
+  },
+  {
+   "task_id": 247,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 66796,
+   "tokens_out": 2737
+  },
+  {
+   "task_id": 211,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 67726,
+   "tokens_out": 2378
+  },
+  {
+   "task_id": 461,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 21,
+   "tokens_in": 46309,
+   "tokens_out": 2163
+  },
+  {
+   "task_id": 63,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 67228,
+   "tokens_out": 3053
+  },
+  {
+   "task_id": 243,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 66079,
+   "tokens_out": 2696
+  },
+  {
+   "task_id": 127,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 66195,
+   "tokens_out": 2954
+  },
+  {
+   "task_id": 457,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 66234,
+   "tokens_out": 2003
+  },
+  {
+   "task_id": 110,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 4,
+   "tokens_in": 6847,
+   "tokens_out": 255
+  },
+  {
+   "task_id": 95,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 6,
+   "tokens_in": 13345,
+   "tokens_out": 481
+  },
+  {
+   "task_id": 292,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 66725,
+   "tokens_out": 2404
+  },
+  {
+   "task_id": 208,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 67846,
+   "tokens_out": 2431
+  },
+  {
+   "task_id": 64,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 67074,
+   "tokens_out": 2182
+  },
+  {
+   "task_id": 200,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 66685,
+   "tokens_out": 2710
+  },
+  {
+   "task_id": 79,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 66599,
+   "tokens_out": 3149
+  },
+  {
+   "task_id": 202,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 67727,
+   "tokens_out": 2306
+  },
+  {
+   "task_id": 131,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 2,
+   "tokens_in": 4329,
+   "tokens_out": 225
+  },
+  {
+   "task_id": 41,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 68180,
+   "tokens_out": 2269
+  },
+  {
+   "task_id": 463,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 66419,
+   "tokens_out": 3360
+  },
+  {
+   "task_id": 2,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 24,
+   "tokens_in": 57309,
+   "tokens_out": 4226
+  },
+  {
+   "task_id": 115,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 66164,
+   "tokens_out": 2327
+  },
+  {
+   "task_id": 212,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 67925,
+   "tokens_out": 2376
+  },
+  {
+   "task_id": 203,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 68695,
+   "tokens_out": 2336
+  },
+  {
+   "task_id": 11,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 18,
+   "tokens_in": 40622,
+   "tokens_out": 1942
+  },
+  {
+   "task_id": 199,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 66711,
+   "tokens_out": 2630
+  },
+  {
+   "task_id": 78,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 66753,
+   "tokens_out": 2574
+  },
+  {
+   "task_id": 62,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 16,
+   "tokens_in": 33223,
+   "tokens_out": 1214
+  },
+  {
+   "task_id": 198,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 66737,
+   "tokens_out": 2520
+  },
+  {
+   "task_id": 114,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 66237,
+   "tokens_out": 2215
+  },
+  {
+   "task_id": 194,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 5,
+   "tokens_in": 11085,
+   "tokens_out": 441
+  },
+  {
+   "task_id": 3,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 3,
+   "tokens_in": 6709,
+   "tokens_out": 293
+  },
+  {
+   "task_id": 487,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 4,
+   "tokens_in": 6390,
+   "tokens_out": 266
+  },
+  {
+   "task_id": 290,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 67443,
+   "tokens_out": 2548
+  },
+  {
+   "task_id": 473,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 66466,
+   "tokens_out": 2019
+  },
+  {
+   "task_id": 347,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 67973,
+   "tokens_out": 2751
+  },
+  {
+   "task_id": 460,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 66903,
+   "tokens_out": 3495
+  },
+  {
+   "task_id": 187,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 66179,
+   "tokens_out": 2497
+  },
+  {
+   "task_id": 214,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 67283,
+   "tokens_out": 2021
+  },
+  {
+   "task_id": 345,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 68154,
+   "tokens_out": 2758
+  },
+  {
+   "task_id": 108,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 75233,
+   "tokens_out": 2775
+  },
+  {
+   "task_id": 348,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 68011,
+   "tokens_out": 2495
+  },
+  {
+   "task_id": 13,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 17,
+   "tokens_in": 38255,
+   "tokens_out": 1570
+  },
+  {
+   "task_id": 43,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 24,
+   "tokens_in": 52445,
+   "tokens_out": 1753
+  },
+  {
+   "task_id": 112,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 66224,
+   "tokens_out": 2248
+  },
+  {
+   "task_id": 128,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 1,
+   "tokens_in": 2160,
+   "tokens_out": 109
+  },
+  {
+   "task_id": 375,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 66987,
+   "tokens_out": 2658
+  },
+  {
+   "task_id": 245,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 66452,
+   "tokens_out": 2604
+  },
+  {
+   "task_id": 344,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 67379,
+   "tokens_out": 2332
+  },
+  {
+   "task_id": 120,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 67122,
+   "tokens_out": 1855
+  },
+  {
+   "task_id": 107,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 3,
+   "tokens_in": 6922,
+   "tokens_out": 277
+  },
+  {
+   "task_id": 6,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 71281,
+   "tokens_out": 5869
+  },
+  {
+   "task_id": 204,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 1,
+   "tokens_in": 2237,
+   "tokens_out": 156
+  },
+  {
+   "task_id": 1,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 10,
+   "tokens_in": 23698,
+   "tokens_out": 1256
+  },
+  {
+   "task_id": 15,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 67541,
+   "tokens_out": 2771
+  },
+  {
+   "task_id": 4,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 5,
+   "tokens_in": 11501,
+   "tokens_out": 470
+  },
+  {
+   "task_id": 94,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 68649,
+   "tokens_out": 2639
+  },
+  {
+   "task_id": 201,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 66685,
+   "tokens_out": 2447
+  },
+  {
+   "task_id": 459,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 64697,
+   "tokens_out": 1945
+  },
+  {
+   "task_id": 423,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 65683,
+   "tokens_out": 2051
+  },
+  {
+   "task_id": 246,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 20,
+   "tokens_in": 41789,
+   "tokens_out": 2092
+  },
+  {
+   "task_id": 210,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 67720,
+   "tokens_out": 2441
+  },
+  {
+   "task_id": 209,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 67726,
+   "tokens_out": 2302
+  },
+  {
+   "task_id": 213,
+   "sites": [
+    "shopping_admin"
+   ],
+   "success": 0.0,
+   "steps": 30,
+   "tokens_in": 67284,
+   "tokens_out": 1866
+  }
+ ]
+}
