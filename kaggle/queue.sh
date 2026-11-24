@@ -8,7 +8,7 @@ for job in "$@"; do
     out=$(timeout 200 uv run python kaggle/launch.py "$job" 2>&1 | tail -1)
     echo "$(date -u +%H:%M:%S) $job: $out"
     case "$out" in *successfully*) break;; esac
-    case "$out" in *"session count"*) ;; *) echo "UNEXPECTED, stopping queue"; exit 1;; esac
+    # anything else (network drop, Kaggle 5xx, git fetch failure) is retried too; the deadline bounds it
     [ "$(date +%s)" -gt "$deadline" ] && { echo "GAVE UP on $job"; exit 1; }
     sleep 120
   done
