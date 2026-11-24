@@ -70,7 +70,7 @@ async def run_episode(browser, task: dict, policy, out_dir: pathlib.Path, state_
     """task: {task_id, sites, start_urls, intent}. Writes out_dir/{agent_response.json, network.har, traj.jsonl}."""
     out_dir.mkdir(parents=True, exist_ok=True)
     ctx = await browser.new_context(viewport=VIEWPORT, record_har_path=str(out_dir / "network.har"),
-                                    record_har_content="omit",
+                                    record_har_content="embed",
                                     storage_state=str(state_path) if state_path and state_path.exists() else None)
     page = await ctx.new_page()
     system = system_prompt(task["sites"], task["intent"], task["start_urls"])
