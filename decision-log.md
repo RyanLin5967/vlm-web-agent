@@ -50,3 +50,5 @@ Append-only. Newest at the bottom. (Not named DECISIONS.md: the global spend-gua
   allows 2 GPU sessions per account and the weekly GPU quota is shared. This project effectively has 1 slot.
 - SFT path verified (kaggle wa-sft-smoke, tiny random Qwen3-VL, CPU): 2 LoRA updates, finite loss, adapter
   saved, supervised tokens decode to exactly target + <|im_end|> (assistant-only loss mask correct).
+- Sites verified on Kaggle free CPU under proot (crane rootfs): shopping_admin (boot 174 s, admin dashboard,
+  logged in), reddit (boot 271 s, logged in), shopping (boot 285 s, customer logged in). 475/812 single-site tasks.
