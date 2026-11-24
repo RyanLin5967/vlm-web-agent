@@ -34,3 +34,10 @@ Append-only. Newest at the bottom. (Not named DECISIONS.md: the global spend-gua
 - Site boot root cause (probe v2): services died because my streaming layer extractor LOST FILES (missing nginx
   conf sample, php-fpm.conf, InnoDB .ibd files; rootfs 1.7 GB), not only for lack of /proc. Switched to
   `crane export` (go-containerregistry), which flattens layers with correct whiteout semantics.
+- **Student = Qwen3-VL-2B-Instruct** (kaggle/gpu_probe2, T4 fp16): Qwen3.5-2B cannot start under vLLM 0.34 on
+  Turing (engine init fails, eager too); Qwen3-VL-2B runs under vLLM eager: 1.3 s single step, 16-batch 3.67 s,
+  correct grounding on the synthetic SoM test. Fast batched serving is what makes 812-task evals and rejection
+  sampling fit free GPU hours. Spec allows "newest ~2B Qwen-VL". fp16 forward of Qwen3.5-2B gave a finite loss,
+  so fp16 LoRA training on T4 is viable.
+- **Large open baseline = Qwen3-VL-32B-Instruct** (named in the spec; 16x the student), as the 4-bit AWQ build
+  QuantTrio/Qwen3-VL-32B-Instruct-AWQ to fit 2xT4. Being probed with the 30B-A3B AWQ (teacher candidate) in gpu_probe3.
