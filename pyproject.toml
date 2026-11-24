@@ -1,0 +1,11 @@
+[project]
+name = "vlm-web-agent"
+version = "0.1.0"
+requires-python = ">=3.11"
+# No modal: Ryan, 2026-11-24 — "make sure i don't get charged on modal". All compute is Kaggle free tier.
+dependencies = ["pillow", "playwright"]
+[dependency-groups]
+dev = ["pytest"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
