@@ -75,6 +75,15 @@ async def run_many(tasks, policy, out_root: pathlib.Path, base_urls: dict, concu
     return done
 
 
+class ScriptedPolicy:
+    """Pipeline smoke test only: scrolls once, then gives up. Exercises every stage except the model."""
+    def __call__(self, msgs):
+        if "Previous actions:\n(none)" in msgs[1]["content"][1]["text"]:
+            return 'Look around.\n{"action": "scroll", "direction": "down"}', {"in": 0, "out": 0}
+        return ('Give up.\n{"action": "stop", "answer": {"task_type": "RETRIEVE", "status": "UNKNOWN_ERROR", '
+                '"retrieved_data": null, "error_details": "smoke"}}'), {"in": 0, "out": 0}
+
+
 def cmd_eval(a):
     cfg = json.loads(pathlib.Path(a.config).read_text())
     base_urls = {k.strip("_").lower(): v["urls"][0] for k, v in cfg["environments"].items()}
@@ -94,7 +103,8 @@ def cmd_eval(a):
         tasks = tasks[: a.limit]
     if not tasks:
         raise SystemExit("REFUSE: zero tasks selected")
-    policy = OpenAIPolicy(a.endpoint, a.model, temperature=a.temperature, api_key=a.api_key, seed=a.seed)
+    policy = (ScriptedPolicy() if a.model == "scripted" else
+              OpenAIPolicy(a.endpoint, a.model, temperature=a.temperature, api_key=a.api_key, seed=a.seed))
     t0 = time.time()
     metas = asyncio.run(run_many(tasks, policy, pathlib.Path(a.out) / "runs", base_urls, a.concurrency, not a.no_som,
                                  save_images=False))
