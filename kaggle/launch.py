@@ -58,7 +58,8 @@ try:
             rc = sh(f"{st['cmd']} 2>&1 | tee {OUT}/run_{i}.log | tail -40", int(st.get("hours", 5) * 3600))
             stage(f"run_{i}_cmd", rc == 0, rc=rc)
             continue
-        rc = sh(f"python -m wa.run {st['mode']} --config /kaggle/wa_config.json --sites {JOB['site']} --model {JOB['model']} "
+        site_args = f"--config /kaggle/wa_config.json --sites {JOB['site']} " if JOB.get("site") else ""
+        rc = sh(f"python -m wa.run {st['mode']} {site_args}--model {JOB['model']} "
                 f"--endpoint {JOB.get('endpoint', 'http://localhost:8000/v1')} --out {OUT}/{st['out']} {st.get('run_args', '')} "
                 f"2>&1 | tee {OUT}/run_{i}.log | tail -40", int(st.get("hours", 5) * 3600))
         stage(f"run_{i}_{st['mode']}", rc == 0, rc=rc)
