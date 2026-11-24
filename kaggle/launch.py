@@ -33,7 +33,7 @@ try:
     stage("setup", True)
     from wa.rootfs import Site
     site = Site(JOB["site"]); boot_s = site.boot(log=lambda m: print(m, flush=True))
-    stage("site", True, boot_s=round(boot_s), mode=site.mode)
+    stage("site", True, boot_s=round(boot_s), mode=site.mode, selfcheck=site.selfcheck())
     k, v = site.config_entry()
     json.dump({"environments": {k: v}}, open("/kaggle/wa_config.json", "w"))
     if JOB.get("gpu"):

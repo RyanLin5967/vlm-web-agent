@@ -44,6 +44,17 @@ async def run_many(tasks, policy, out_root: pathlib.Path, base_urls: dict, concu
                 sp = out_root / f".state_{site}.json"
                 await login(browser, site, base_urls[site], sp)
                 states[site] = sp
+        # preflight: refuse to run (and to emit a 0% results file) if the browser cannot load a start page
+        ctx = await browser.new_context()
+        pg = await ctx.new_page()
+        try:
+            resp = await pg.goto(tasks[0]["start_urls"][0], timeout=60000)
+            print(json.dumps({"preflight": tasks[0]["start_urls"][0], "final_url": pg.url,
+                              "status": resp.status if resp else None, "title": await pg.title()}), flush=True)
+        except Exception as e:  # noqa: BLE001
+            raise SystemExit(f"REFUSE: preflight cannot load {tasks[0]['start_urls'][0]}: {e}")
+        finally:
+            await ctx.close()
         sem = asyncio.Semaphore(concurrency)
         done = []
 
@@ -72,6 +83,11 @@ async def run_many(tasks, policy, out_root: pathlib.Path, base_urls: dict, concu
 
         await asyncio.gather(*(one(t) for t in tasks))
         await browser.close()
+    env_failed = [m["task_id"] for m in done if m.get("calls", m["usage"]["calls"]) == 0]
+    if done and len(env_failed) == len(done):
+        raise SystemExit(f"REFUSE: all {len(done)} episodes ended before any policy call (environment failure)")
+    if env_failed:
+        print(json.dumps({"episodes_without_policy_call": env_failed[:50], "n": len(env_failed)}), flush=True)
     return done
 
 

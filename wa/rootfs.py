@@ -88,11 +88,11 @@ class Site:
             sh("command -v proot || (curl -sL -o /usr/local/bin/proot https://proot.gitlab.io/proot/bin/proot && chmod +x /usr/local/bin/proot)")
         entry = " ".join((cfg.get("Entrypoint") or []) + (cfg.get("Cmd") or []))
         env = " ".join(f"{e.split('=', 1)[0]}='{e.split('=', 1)[1]}'" for e in cfg.get("Env", []))
+        self.env_prefix = f"env -i PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin HOME=/root {env}"
         wd = cfg.get("WorkingDir") or "/"
         self.log = open(f"/kaggle/working/site_{self.name}.log", "w") if os.path.isdir("/kaggle/working") else subprocess.DEVNULL
         self.proc = subprocess.Popen(
-            ["bash", "-lc", f"env -i PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin HOME=/root {env} "
-                            f"{self.runner()} /bin/sh -c 'cd {wd}; exec {entry}'"], stdout=self.log, stderr=subprocess.STDOUT)
+            ["bash", "-lc", f"{self.env_prefix} {self.runner()} /bin/sh -c 'cd {wd}; exec {entry}'"], stdout=self.log, stderr=subprocess.STDOUT)
         while time.time() - t0 < deadline_s:
             _, code = sh(f"curl -s -o /dev/null -w '%{{http_code}}' http://localhost:{self.port}{self.health}", 30)
             if code.strip() in {"200", "302"}:
@@ -102,9 +102,20 @@ class Site:
             time.sleep(10)
         else:
             raise RuntimeError(f"{self.name} not healthy after {deadline_s}s\n{self.diagnose()}")
-        rc, out = sh(f"{self.runner()} env-ctrl init --base-url {self.base_url}/ 2>&1 | tail -3", 900)
-        log(f"env-ctrl init rc={rc}: {out[-300:]}")
+        # env-ctrl reads WA_ENV_CTRL_TYPE etc. from the image env: run it with the same env as the entrypoint
+        rc, out = sh(f"{self.env_prefix} {self.runner()} env-ctrl init --base-url {self.base_url}/ 2>&1 | tail -5", 900)
+        log(f"env-ctrl init rc={rc}: {out[-500:]}")
+        if rc != 0 or "Error" in out:
+            raise RuntimeError(f"env-ctrl init failed rc={rc}: {out[-1500:]}")
         return time.time() - t0
+
+    def selfcheck(self) -> dict:
+        """Facts a reader needs when the browser cannot reach the site: listeners, per-address curl, redirects."""
+        chk = {"listen": sh("ss -ltnp 2>/dev/null | head -30 || netstat -ltnp | head -30")[1]}
+        for host in ("localhost", "127.0.0.1", "[::1]"):
+            chk[host] = sh(f"curl -s -o /dev/null -w '%{{http_code}} -> %{{redirect_url}}' http://{host}:{self.port}{self.health}", 60)[1]
+        chk["redirect_chain"] = sh(f"curl -sIL -o /dev/null -w '%{{url_effective}} %{{http_code}}' --max-redirs 10 {self.base_url}{self.health}", 60)[1]
+        return chk
 
     def diagnose(self) -> str:
         out = [sh(f"{self.runner()} supervisorctl status", 60)[1]]
