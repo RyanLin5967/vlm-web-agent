@@ -13,12 +13,12 @@ HERE = pathlib.Path(__file__).parent
 REPO = "https://github.com/RyanLin5967/vlm-web-agent.git"
 
 KERNEL = r'''
-import json, os, subprocess, sys, time, traceback
+import json, os, shlex, subprocess, sys, time, traceback
 JOB = json.loads(%(job)r)
 OUT = "/kaggle/working"
 def sh(c, t=3600):
     print("+", c[:200], flush=True)
-    r = subprocess.run(["bash", "-lc", f"timeout {t} bash -lc {c!r}"], capture_output=True, text=True)
+    r = subprocess.run(["bash", "-lc", f"timeout {t} bash -lc {shlex.quote(c)}"], capture_output=True, text=True)
     print((r.stdout + r.stderr)[-2000:], flush=True); return r.returncode
 status = {"job": JOB, "stages": {}}
 def stage(n, ok, **kw):

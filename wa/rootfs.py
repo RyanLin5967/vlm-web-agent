@@ -6,6 +6,7 @@ proot. One site per kernel, on its native port."""
 from __future__ import annotations
 
 import json
+import shlex
 import os
 import shutil
 import subprocess
@@ -20,7 +21,9 @@ SITES = {  # image suffix, port the site serves on inside the container, health 
 
 
 def sh(c: str, t: int = 600) -> tuple[int, str]:
-    p = subprocess.run(["bash", "-lc", f"timeout {t} bash -lc {c!r}"], capture_output=True, text=True)
+    # shlex.quote, not repr: repr switches to double quotes when c has single quotes, and the outer bash then
+    # expands $vars / $(...) before the inner one runs (it emptied $f in the gitlab pg_hba patch)
+    p = subprocess.run(["bash", "-lc", f"timeout {t} bash -lc {shlex.quote(c)}"], capture_output=True, text=True)
     return p.returncode, (p.stdout + p.stderr)[-3000:]
 
 
@@ -84,6 +87,7 @@ class Site:
         # chroot alone is not enough: services need /proc and /dev inside the root. Kaggle allows chroot but not
         # mount (no CAP_SYS_ADMIN; measured 2026-11-24, kaggle/site_probe), so the probe is "can /proc be mounted".
         ok = sh(f"chroot {self.root} /bin/true && mount -t proc proc {self.root}/proc && echo PROC_OK")[1]
+        self.pre_boot(log)
         if "PROC_OK" in ok:
             self.mode = "chroot"
             sh(f"mount --rbind /dev {self.root}/dev; mount --rbind /sys {self.root}/sys")
@@ -112,6 +116,19 @@ class Site:
         if rc != 0 or "Error" in out:
             raise RuntimeError(f"env-ctrl init failed rc={rc}: {out[-1500:]}")
         return time.time() - t0
+
+    def pre_boot(self, log=print):
+        """Site fixes needed only because services run under proot, where setuid is simulated."""
+        if self.name == "gitlab":
+            # Postgres peer auth reads the client's REAL uid (root under proot), so the git->gitlab ident map fails
+            # and puma dies with "Peer authentication failed for user gitlab". Local-socket trust is safe here:
+            # the site lives in a throwaway kernel with no other users.
+            rc, out = sh(f"f=$(ls {self.root}/var/opt/gitlab/postgresql/data/pg_hba.conf) && "
+                         f"sed -i -E 's/^(local[[:space:]].*)(peer|md5|scram-sha-256)( map=[a-z_]+)?/\\1trust/' $f && "
+                         f"grep -E '^local' $f")
+            log(f"gitlab pg_hba patched rc={rc}: {out[-300:]}")
+            if rc != 0 or "trust" not in out:
+                raise RuntimeError(f"could not patch gitlab pg_hba.conf: {out}")
 
     def selfcheck(self) -> dict:
         """Facts a reader needs when the browser cannot reach the site: listeners, per-address curl, redirects."""

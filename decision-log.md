@@ -64,3 +64,8 @@ Append-only. Newest at the bottom. (Not named DECISIONS.md: the global spend-gua
   (95% bootstrap CI 2.8-13.2%), mean 20.4 steps, 44.8k input tokens/task. results/reddit__Qwen3-VL-30B-A3B-AWQ__zs__s0.json
 - Teacher throughput (vLLM log, 2xT4, conc 8): ~300 prompt tok/s, ~23 gen tok/s, KV ~25% -> ~0.3 steps/s.
   Collection raised to concurrency 16. Realistic data scale on free tier: low thousands of verified steps per site.
+- GitLab root cause (smoke v4 logs): puma "Peer authentication failed for user gitlab" - under proot setuid is
+  simulated, so Postgres peer auth sees uid root. Pre-boot hook switches local pg_hba lines to trust.
+- Quoting bug in both sh() helpers: `bash -lc {c!r}` let the OUTER bash expand $vars/$(...) whenever repr chose
+  double quotes (old wrapper printed '' for a test that must print "inner single $x sub"). Now shlex.quote;
+  tests/test_sh_quoting.py. Earlier diagnostics loops printing only headers were this bug.
