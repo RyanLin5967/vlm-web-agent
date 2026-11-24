@@ -45,12 +45,15 @@ try:
             srv = f"python -m wa.hf_server --model {JOB['model']} --port 8000 {JOB.get('server_args', '')}"
         else:
             srv = f"vllm serve {JOB['model']} --port 8000 {JOB.get('vllm_args', '')}"
-        subprocess.Popen(["bash", "-lc", srv], stdout=vl, stderr=subprocess.STDOUT)
+        vp = subprocess.Popen(["bash", "-lc", srv], stdout=vl, stderr=subprocess.STDOUT)
         for _ in range(240):
             if sh("curl -sf localhost:8000/v1/models > /dev/null", 20) == 0: break
+            if vp.poll() is not None:  # server died: fail now with its errors, not after the 40-min wait
+                errs = [l for l in open(f"{OUT}/vllm.log") if "Error" in l or "error" in l][-15:]
+                raise RuntimeError("model server exited rc=%s\n%s" % (vp.returncode, "".join(errs)))
             time.sleep(10)
         else:
-            raise RuntimeError("vllm did not come up")
+            raise RuntimeError("model server did not come up in 40 min")
         stage("vllm", True)
     steps = JOB.get("steps") or [{"mode": JOB["mode"], "run_args": JOB.get("run_args", ""), "out": "out", "hours": 11}]
     for i, st in enumerate(steps):  # several steps share one site boot + one model server
