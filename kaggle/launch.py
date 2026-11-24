@@ -30,13 +30,16 @@ try:
     sh("pip install -q pillow playwright webarena-verified sentence-transformers 2>&1 | tail -2 && python -m playwright install --with-deps chromium 2>&1 | tail -1", 1800)
     if JOB.get("gpu"):
         sh("pip install -q -U vllm 2>&1 | tail -2" if JOB.get("server", "vllm") == "vllm" else "pip install -q -U transformers peft accelerate 2>&1 | tail -2", 2400)
+    if JOB.get("train"):
+        sh("pip install -q -U transformers peft accelerate 2>&1 | tail -2", 1800)
     stage("setup", True)
-    from wa.rootfs import Site
-    site = Site(JOB["site"]); boot_s = site.boot(log=lambda m: print(m, flush=True))
-    stage("site", True, boot_s=round(boot_s), mode=site.mode, selfcheck=site.selfcheck())
-    k, v = site.config_entry()
-    json.dump({"environments": {k: v}}, open("/kaggle/wa_config.json", "w"))
-    if JOB.get("gpu"):
+    if JOB.get("site"):
+        from wa.rootfs import Site
+        site = Site(JOB["site"]); boot_s = site.boot(log=lambda m: print(m, flush=True))
+        stage("site", True, boot_s=round(boot_s), mode=site.mode, selfcheck=site.selfcheck())
+        k, v = site.config_entry()
+        json.dump({"environments": {k: v}}, open("/kaggle/wa_config.json", "w"))
+    if JOB.get("gpu") and JOB.get("model"):
         vl = open(f"{OUT}/vllm.log", "w")
         if JOB.get("server", "vllm") == "hf":
             srv = f"python -m wa.hf_server --model {JOB['model']} --port 8000 {JOB.get('server_args', '')}"
@@ -51,6 +54,10 @@ try:
         stage("vllm", True)
     steps = JOB.get("steps") or [{"mode": JOB["mode"], "run_args": JOB.get("run_args", ""), "out": "out", "hours": 11}]
     for i, st in enumerate(steps):  # several steps share one site boot + one model server
+        if "cmd" in st:  # raw step, e.g. building SFT rows or training
+            rc = sh(f"{st['cmd']} 2>&1 | tee {OUT}/run_{i}.log | tail -40", int(st.get("hours", 5) * 3600))
+            stage(f"run_{i}_cmd", rc == 0, rc=rc)
+            continue
         rc = sh(f"python -m wa.run {st['mode']} --config /kaggle/wa_config.json --sites {JOB['site']} --model {JOB['model']} "
                 f"--endpoint {JOB.get('endpoint', 'http://localhost:8000/v1')} --out {OUT}/{st['out']} {st.get('run_args', '')} "
                 f"2>&1 | tee {OUT}/run_{i}.log | tail -40", int(st.get("hours", 5) * 3600))
@@ -74,7 +81,8 @@ def main():
     (d / "run.py").write_text(KERNEL % {"job": json.dumps(job)})
     meta = {"id": f"ryanlin5967/{slug}", "title": slug, "code_file": "run.py", "language": "python", "kernel_type": "script",
             "is_private": True, "enable_gpu": bool(job.get("gpu")), "enable_internet": True,
-            "dataset_sources": [], "competition_sources": [], "kernel_sources": []}
+            "dataset_sources": [], "competition_sources": [],
+            "kernel_sources": [f"ryanlin5967/{k}" for k in job.get("inputs", [])]}
     # no machine_shape: the default GPU is T4x2 and starts at once; "NvidiaTeslaT4" sat QUEUED 30+ min (2026-11-24)
     (d / "kernel-metadata.json").write_text(json.dumps(meta))
     env = dict(os.environ, KAGGLE_API_TOKEN=pathlib.Path("~/.config/kaggle/token").expanduser().read_text().strip())
