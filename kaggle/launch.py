@@ -29,7 +29,7 @@ try:
     sys.path.insert(0, "/kaggle/repo"); os.chdir("/kaggle/repo")
     sh("pip install -q pillow playwright webarena-verified 2>&1 | tail -2 && python -m playwright install --with-deps chromium 2>&1 | tail -1", 1800)
     if JOB.get("gpu"):
-        sh("pip install -q -U vllm 2>&1 | tail -2", 2400)
+        sh("pip install -q -U vllm 2>&1 | tail -2" if JOB.get("server", "vllm") == "vllm" else "pip install -q -U transformers peft accelerate 2>&1 | tail -2", 2400)
     stage("setup", True)
     from wa.rootfs import Site
     site = Site(JOB["site"]); boot_s = site.boot(log=lambda m: print(m, flush=True))
@@ -38,7 +38,11 @@ try:
     json.dump({"environments": {k: v}}, open("/kaggle/wa_config.json", "w"))
     if JOB.get("gpu"):
         vl = open(f"{OUT}/vllm.log", "w")
-        subprocess.Popen(["bash", "-lc", f"vllm serve {JOB['model']} --port 8000 {JOB.get('vllm_args', '')}"], stdout=vl, stderr=subprocess.STDOUT)
+        if JOB.get("server", "vllm") == "hf":
+            srv = f"python -m wa.hf_server --model {JOB['model']} --port 8000 {JOB.get('server_args', '')}"
+        else:
+            srv = f"vllm serve {JOB['model']} --port 8000 {JOB.get('vllm_args', '')}"
+        subprocess.Popen(["bash", "-lc", srv], stdout=vl, stderr=subprocess.STDOUT)
         for _ in range(240):
             if sh("curl -sf localhost:8000/v1/models > /dev/null", 20) == 0: break
             time.sleep(10)
