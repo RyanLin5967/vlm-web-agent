@@ -1,0 +1,4 @@
+{"name": "eval_2b_zs_shopping_admin", "site": "shopping_admin", "mode": "eval", "gpu": true, "server": "vllm",
+ "model": "Qwen/Qwen3-VL-2B-Instruct",
+ "vllm_args": "--dtype float16 --enforce-eager --max-model-len 8192 --gpu-memory-utilization 0.85 --limit-mm-per-prompt '{\"image\":1}'",
+ "run_args": "--concurrency 8 --seed 0"}
