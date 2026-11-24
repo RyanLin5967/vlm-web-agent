@@ -17,7 +17,18 @@ SITES = {  # image suffix, port the site serves on inside the container, health 
     "shopping": ("shopping", 80, "/"),
     "reddit": ("reddit", 80, "/"),
     "gitlab": ("gitlab", 8023, "/explore"),
+    "map": ("map", 8080, "/"),
 }
+# Map data volumes (from webarena_verified/environments/container/config.py): (tar, member path, strip, dest)
+MAP_S3 = "https://webarena-map-server-data.s3.amazonaws.com"
+MAP_VOLUMES = [
+    ("osm_tile_server.tar", "projects/ogma3/docker/volumes/osm-data/_data", 6, "/data/database"),
+    ("osrm_routing.tar", "car", 1, "/data/routing/car"),
+    ("osrm_routing.tar", "bike", 1, "/data/routing/bike"),
+    ("osrm_routing.tar", "foot", 1, "/data/routing/foot"),
+    ("nominatim_volumes.tar", "projects/metis2/docker/docker/volumes/nominatim-data/_data", 7, "/data/nominatim/postgres"),
+    ("nominatim_volumes.tar", "projects/metis2/docker/docker/volumes/nominatim-flatnode/_data", 7, "/data/nominatim/flatnode"),
+]
 
 
 def sh(c: str, t: int = 600) -> tuple[int, str]:
@@ -118,7 +129,25 @@ class Site:
         return time.time() - t0
 
     def pre_boot(self, log=print):
-        """Site fixes needed only because services run under proot, where setuid is simulated."""
+        """Site fixes needed only because services run under proot, where setuid is simulated; map data volumes."""
+        if self.name == "map":
+            t = time.time()
+            for tar in sorted({v[0] for v in MAP_VOLUMES}):
+                rc, out = sh(f"mkdir -p /tmp/mapdata && curl -sSfL -o /tmp/mapdata/{tar} {MAP_S3}/{tar} && ls -la /tmp/mapdata/{tar}", 7200)
+                log(f"map download {tar} rc={rc} {out[-200:]}")
+                if rc != 0:
+                    raise RuntimeError(f"map data download failed: {tar}: {out}")
+                for tar_, member, strip, dest in MAP_VOLUMES:
+                    if tar_ != tar:
+                        continue
+                    d = f"{self.root}{dest}"
+                    rc, out = sh(f"rm -rf {d} && mkdir -p {d} && tar -x -f /tmp/mapdata/{tar} -C {d} "
+                                 f"--strip-components={strip} {member} && du -sh {d}", 7200)
+                    log(f"map volume {dest} rc={rc} {out[-200:]}")
+                    if rc != 0:
+                        raise RuntimeError(f"map volume extract failed: {dest}: {out}")
+                sh(f"rm -f /tmp/mapdata/{tar}")
+            log(f"map data ready in {time.time() - t:.0f}s")
         if self.name == "gitlab":
             # Postgres peer auth reads the client's REAL uid (root under proot), so the git->gitlab ident map fails
             # and puma dies with "Peer authentication failed for user gitlab". Local-socket trust is safe here:
