@@ -127,7 +127,13 @@ class Site:
         out.append(sh(f"for f in {self.root}/var/log/gitlab/puma/current {self.root}/var/log/gitlab/puma/puma_stderr.log "
                       f"{self.root}/var/log/gitlab/gitlab-rails/application_json.log {self.root}/var/log/gitlab/sidekiq/current; do "
                       f"echo == $f; tail -n 25 $f; done 2>/dev/null; free -g; dmesg 2>/dev/null | tail -5", 60)[1])
-        return "\n".join(out)[-12000:]
+        full = "\n".join(out)
+        if os.path.isdir("/kaggle/working"):  # untruncated copy; the exception message keeps only the tail
+            with open(f"/kaggle/working/diagnose_{self.name}.txt", "w") as f:
+                f.write(full)
+            sh(f"cp -r {self.root}/var/log/gitlab /kaggle/working/gitlab_logs 2>/dev/null; "
+               f"find /kaggle/working/gitlab_logs -size +5M -delete 2>/dev/null")
+        return full[-12000:]
 
     def config_entry(self) -> tuple[str, dict]:
         key = f"__{self.name.upper()}__"
