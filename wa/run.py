@@ -53,12 +53,15 @@ async def run_many(tasks, policy, out_root: pathlib.Path, base_urls: dict, concu
         pg = await ctx.new_page()
         try:
             resp = await pg.goto(tasks[0]["start_urls"][0], timeout=60000)
-            print(json.dumps({"preflight": tasks[0]["start_urls"][0], "final_url": pg.url,
-                              "status": resp.status if resp else None, "title": await pg.title()}), flush=True)
+            info = {"preflight": tasks[0]["start_urls"][0], "final_url": pg.url,
+                    "status": resp.status if resp else None, "title": await pg.title()}
+            print(json.dumps(info), flush=True)
         except Exception as e:  # noqa: BLE001
             raise SystemExit(f"REFUSE: preflight cannot load {tasks[0]['start_urls'][0]}: {e}")
         finally:
             await ctx.close()
+        if info["status"] is not None and info["status"] >= 500:  # a site error page is not a working site
+            raise SystemExit(f"REFUSE: preflight got HTTP {info['status']} ({info['title']})")
         sem = asyncio.Semaphore(concurrency)
         done = []
 

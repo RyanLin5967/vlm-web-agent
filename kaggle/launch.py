@@ -76,6 +76,10 @@ try:
 except Exception as e:
     status["error"] = traceback.format_exc()[-3000:]; json.dump(status, open(f"{OUT}/status.json", "w"), indent=1); print(status["error"])
 finally:
+    try:
+        site.diagnose()  # always keep site logs (writes diagnose_<site>.txt and gitlab_logs/)
+    except Exception:
+        pass
     sh(f"cd {OUT} && tar czf runs_trimmed.tgz --exclude='*.har' out* 2>/dev/null; du -sh {OUT}/* | tail -20")
 '''
 
