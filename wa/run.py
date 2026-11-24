@@ -157,6 +157,88 @@ def summarize(a, tasks, metas, wall_s):
     print(json.dumps({k: v for k, v in res.items() if k != "rows"}))
 
 
+def _base_urls(config_path):
+    cfg = json.loads(pathlib.Path(config_path).read_text())
+    return {k.strip("_").lower(): v["urls"][0] for k, v in cfg["environments"].items()}
+
+
+def cmd_collect(a):
+    """Phase 1+2 on one site: crawl -> propose -> leakage filter -> teacher episodes -> verify -> keep successes."""
+    from wa import leakage, taskgen, verify
+    out = pathlib.Path(a.out); out.mkdir(parents=True, exist_ok=True)
+    base_urls = _base_urls(a.config)
+    site = a.sites
+    home = base_urls[site]
+    policy = OpenAIPolicy(a.endpoint, a.model, temperature=a.temperature, api_key=a.api_key, seed=a.seed)
+    text_policy = OpenAIPolicy(a.endpoint, a.model, temperature=0.7, max_tokens=1500, api_key=a.api_key)
+    tasks_f = out / "synthetic_tasks.jsonl"
+    if not tasks_f.exists():
+        async def gen():
+            async with async_playwright() as p:
+                b = await p.chromium.launch(args=["--disable-dev-shm-usage"])
+                sp = out / f".state_{site}.json"
+                await login(b, site, home, sp)
+                pages = await taskgen.crawl(b, site, home, sp, max_pages=a.crawl_pages, seed=a.seed)
+                await b.close()
+            (out / "crawl.jsonl").write_text("\n".join(json.dumps(x) for x in pages))
+            return await taskgen.propose_all(pages, {site: home}, text_policy, k=4, concurrency=a.concurrency * 2)
+        props = asyncio.run(gen())
+        if not props:
+            raise SystemExit("REFUSE: zero task proposals")
+        hits = leakage.check(props)
+        bad = {h["i"] for h in hits}
+        (out / "leakage_drops.json").write_text(json.dumps(hits, indent=1))
+        kept = [dict(t, task_id=f"syn-{site}-{a.seed}-{i}") for i, t in enumerate(props) if i not in bad]
+        tasks_f.write_text("\n".join(json.dumps(t) for t in kept))
+        print(json.dumps({"proposals": len(props), "leakage_dropped": len(bad), "kept": len(kept)}), flush=True)
+    tasks = [json.loads(l) for l in open(tasks_f) if l.strip()]
+    if a.limit:
+        tasks = tasks[: a.limit]
+    runs = out / "runs"
+    expanded = [dict(t, task_id=f"{t['task_id']}-s{k}") for t in tasks for k in range(a.samples)]
+    metas = asyncio.run(run_many(expanded, policy, runs, base_urls, a.concurrency, True, save_images=True))
+    bym = {m["task_id"]: m for m in metas}
+
+    async def verify_all():
+        async with async_playwright() as p:
+            b = await p.chromium.launch(args=["--disable-dev-shm-usage"])
+            sp = runs / f".state_{site}.json"
+            res = []
+            for t in expanded:
+                d = runs / t["task_id"]
+                m = bym.get(t["task_id"])
+                if not m or not (d / "agent_response.json").exists():
+                    continue
+                ans = json.loads((d / "agent_response.json").read_text())
+                if t["task_type"] == "RETRIEVE":
+                    prog = verify.check_retrieve(t, ans)
+                elif t["task_type"] == "NAVIGATE":
+                    prog = verify.check_navigate(t, ans, m.get("final_url"))
+                else:
+                    prog = await verify.check_mutate(b, t, ans, sp)
+                judge = None
+                if prog and (d / "final.png").exists():
+                    from PIL import Image
+                    acts = [json.dumps(json.loads(l).get("action")) for l in open(d / "traj.jsonl")]
+                    raw, _ = await asyncio.to_thread(policy, verify.judge_messages(t["intent"], ans, acts, Image.open(d / "final.png")))
+                    judge = verify.judge_says_yes(raw)
+                res.append({"task_id": t["task_id"], "task_type": t["task_type"], "program": prog, "judge": judge,
+                            "verified": bool(prog and judge), "steps": m["steps"], "intent": t["intent"]})
+            await b.close()
+            return res
+
+    res = asyncio.run(verify_all())
+    (out / "verified.jsonl").write_text("\n".join(json.dumps(r) for r in res))
+    ok = [r for r in res if r["verified"]]
+    summary = {"site": site, "model": a.model, "episodes": len(res), "program_pass": sum(r["program"] for r in res),
+               "verified": len(ok), "verified_steps": sum(r["steps"] for r in ok),
+               "by_type": {tt: sum(1 for r in ok if r["task_type"] == tt) for tt in ("RETRIEVE", "NAVIGATE", "MUTATE")}}
+    (out / "collect_summary.json").write_text(json.dumps(summary, indent=1))
+    print(json.dumps(summary))
+    if not res:
+        raise SystemExit("REFUSE: zero episodes verified-or-not — collection produced nothing")
+
+
 def main():
     ap = argparse.ArgumentParser()
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -165,7 +247,13 @@ def main():
     e.add_argument("--sites", default="")
     e.add_argument("--task-ids", default="")
     e.add_argument("--limit", type=int, default=0)
-    for p in (e,):
+    c = sub.add_parser("collect")
+    c.add_argument("--config", required=True)
+    c.add_argument("--sites", required=True)
+    c.add_argument("--limit", type=int, default=0)
+    c.add_argument("--samples", type=int, default=1)
+    c.add_argument("--crawl-pages", type=int, default=250)
+    for p in (e, c):
         p.add_argument("--model", required=True)
         p.add_argument("--endpoint", required=True)
         p.add_argument("--api-key", default="x")
@@ -175,8 +263,7 @@ def main():
         p.add_argument("--seed", type=int, default=0)
         p.add_argument("--no-som", action="store_true")
     a = ap.parse_args()
-    if a.cmd == "eval":
-        cmd_eval(a)
+    {"eval": cmd_eval, "collect": cmd_collect}[a.cmd](a)
 
 
 if __name__ == "__main__":

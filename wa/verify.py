@@ -12,7 +12,7 @@ from wa.policy import _png_data_url  # noqa: F401  (re-exported for judge caller
 
 
 def _n(s) -> str:
-    return re.sub(r"\s+", " ", re.sub(r"[^\w\s.$-]", " ", str(s).lower())).strip()
+    return re.sub(r"\s+", " ", re.sub(r"[^\w\s.-]", " ", str(s).lower())).strip()
 
 
 def check_retrieve(task: dict, answer: dict) -> bool:
