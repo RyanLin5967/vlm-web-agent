@@ -124,7 +124,10 @@ class Site:
                sh(f"curl -s -m 30 -o /dev/null -w '%{{http_code}}' http://localhost:{self.port}{self.health}", 60)[1]]
         out.append(sh(f"for f in {self.root}/var/log/supervisor/*.log {self.root}/var/log/*.log {self.root}/var/log/*/*.log; do "
                       f"echo == $f; tail -n 15 $f; done 2>/dev/null | tail -n 150", 60)[1])
-        return "\n".join(out)[-6000:]
+        out.append(sh(f"for f in {self.root}/var/log/gitlab/puma/current {self.root}/var/log/gitlab/puma/puma_stderr.log "
+                      f"{self.root}/var/log/gitlab/gitlab-rails/application_json.log {self.root}/var/log/gitlab/sidekiq/current; do "
+                      f"echo == $f; tail -n 25 $f; done 2>/dev/null; free -g; dmesg 2>/dev/null | tail -5", 60)[1])
+        return "\n".join(out)[-12000:]
 
     def config_entry(self) -> tuple[str, dict]:
         key = f"__{self.name.upper()}__"
