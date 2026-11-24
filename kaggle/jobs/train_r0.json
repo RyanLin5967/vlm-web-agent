@@ -9,7 +9,7 @@
  ],
  "steps": [
   {
-   "cmd": "python -m wa.build_data --inputs /kaggle/input --out /kaggle/working/data",
+   "cmd": "python -m wa.build_data --inputs /kaggle/in --out /kaggle/working/data",
    "hours": 0.5
   },
   {

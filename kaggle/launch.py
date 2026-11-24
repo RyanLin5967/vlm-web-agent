@@ -27,6 +27,13 @@ T0 = time.time()
 try:
     assert sh(f"git clone -q {JOB['repo']} /kaggle/repo && cd /kaggle/repo && git checkout -q {JOB['commit']}") == 0
     sys.path.insert(0, "/kaggle/repo"); os.chdir("/kaggle/repo")
+    os.makedirs("/kaggle/in", exist_ok=True)
+    for slug in JOB.get("inputs", []):  # mount layout varies; link each input to a fixed /kaggle/in/<slug>
+        hits = [r for r, ds, fs in os.walk("/kaggle/input") if os.path.basename(r) == slug and r.count("/") <= 6]
+        if not hits:
+            raise RuntimeError("input not mounted: " + slug + " ; /kaggle/input has: " + str(os.listdir("/kaggle/input")))
+        os.symlink(hits[0], "/kaggle/in/" + slug)
+    stage("inputs", True, linked={s: os.path.realpath("/kaggle/in/" + s) for s in JOB.get("inputs", [])})
     sh("pip install -q pillow playwright webarena-verified sentence-transformers 2>&1 | tail -2 && python -m playwright install --with-deps chromium 2>&1 | tail -1", 1800)
     if JOB.get("gpu"):
         sh("pip install -q -U vllm 2>&1 | tail -2" if JOB.get("server", "vllm") == "vllm" else "pip install -q -U transformers peft accelerate 2>&1 | tail -2", 2400)
