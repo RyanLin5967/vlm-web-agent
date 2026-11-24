@@ -1,0 +1,22 @@
+{
+ "name": "reddit_teacher",
+ "site": "reddit",
+ "gpu": true,
+ "server": "vllm",
+ "model": "QuantTrio/Qwen3-VL-30B-A3B-Instruct-AWQ",
+ "vllm_args": "--tensor-parallel-size 2 --quantization awq --dtype float16 --enforce-eager --max-model-len 8192 --gpu-memory-utilization 0.92 --max-num-batched-tokens 4096 --limit-mm-per-prompt '{\"image\":1}'",
+ "steps": [
+  {
+   "mode": "collect",
+   "out": "out_collect",
+   "hours": 7.5,
+   "run_args": "--concurrency 8 --seed 0 --limit 500 --crawl-pages 200"
+  },
+  {
+   "mode": "eval",
+   "out": "out_eval",
+   "hours": 3,
+   "run_args": "--concurrency 8 --seed 0"
+  }
+ ]
+}

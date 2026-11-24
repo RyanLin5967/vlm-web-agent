@@ -52,3 +52,8 @@ Append-only. Newest at the bottom. (Not named DECISIONS.md: the global spend-gua
   saved, supervised tokens decode to exactly target + <|im_end|> (assistant-only loss mask correct).
 - Sites verified on Kaggle free CPU under proot (crane rootfs): shopping_admin (boot 174 s, admin dashboard,
   logged in), reddit (boot 271 s, logged in), shopping (boot 285 s, customer logged in). 475/812 single-site tasks.
+- 32B AWQ on 2xT4 loads (Marlin AWQ kernel works on sm75, 9.85 GiB weights/GPU) but leaves 0.87 GiB KV cache:
+  vLLM refused max_model_len 8192 (needs 1.0 GiB). KV/token/GPU at TP2: 32B ~131 KB vs 30B-A3B ~49 KB.
+  -> **Teacher = Qwen3-VL-30B-A3B-Instruct AWQ** (more concurrency, 3B active params, faster decode).
+  -> 32B baseline runs separately: max_model_len 6144, util 0.95, max_num_batched_tokens 4096, concurrency 3.
+  Collection runs BEFORE eval in teacher kernels (data is the critical path).

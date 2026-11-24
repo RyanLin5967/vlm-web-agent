@@ -1,0 +1,16 @@
+{
+ "name": "reddit_32b_eval",
+ "site": "reddit",
+ "gpu": true,
+ "server": "vllm",
+ "model": "QuantTrio/Qwen3-VL-32B-Instruct-AWQ",
+ "vllm_args": "--tensor-parallel-size 2 --quantization awq --dtype float16 --enforce-eager --max-model-len 6144 --gpu-memory-utilization 0.95 --max-num-batched-tokens 4096 --limit-mm-per-prompt '{\"image\":1}'",
+ "steps": [
+  {
+   "mode": "eval",
+   "out": "out_eval",
+   "hours": 10.5,
+   "run_args": "--concurrency 3 --seed 0"
+  }
+ ]
+}
