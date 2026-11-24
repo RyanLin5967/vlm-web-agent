@@ -48,3 +48,5 @@ Append-only. Newest at the bottom. (Not named DECISIONS.md: the global spend-gua
   (tests/test_run_guards.py forces it to fire).
 - GPU contention: the diff-attention project (kernel diffattn-stage-a) runs on the same Kaggle account; Kaggle
   allows 2 GPU sessions per account and the weekly GPU quota is shared. This project effectively has 1 slot.
+- SFT path verified (kaggle wa-sft-smoke, tiny random Qwen3-VL, CPU): 2 LoRA updates, finite loss, adapter
+  saved, supervised tokens decode to exactly target + <|im_end|> (assistant-only loss mask correct).
