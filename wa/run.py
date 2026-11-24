@@ -34,7 +34,11 @@ def bootstrap_ci(xs: list[float], n: int = 10000, seed: int = 0) -> tuple[float,
 
 
 async def run_many(tasks, policy, out_root: pathlib.Path, base_urls: dict, concurrency: int, som: bool,
-                   save_images: bool) -> list[dict]:
+                   save_images: bool, deadline_s: float = 0) -> list[dict]:
+    """deadline_s > 0: stop STARTING episodes after that many seconds so the caller can still score/verify
+    what finished (a killed process scores nothing). Skipped tasks are reported, never silently dropped."""
+    t_start = time.time()
+    skipped = []
     out_root.mkdir(parents=True, exist_ok=True)
     async with async_playwright() as p:
         browser = await p.chromium.launch(args=["--disable-dev-shm-usage"])
@@ -60,6 +64,9 @@ async def run_many(tasks, policy, out_root: pathlib.Path, base_urls: dict, concu
 
         async def one(t):
             async with sem:
+                if deadline_s and time.time() - t_start > deadline_s:
+                    skipped.append(t["task_id"])
+                    return
                 d = out_root / str(t["task_id"])
                 if (d / "meta.json").exists():  # resumable: never redo a finished episode
                     done.append(json.loads((d / "meta.json").read_text()))
@@ -83,6 +90,9 @@ async def run_many(tasks, policy, out_root: pathlib.Path, base_urls: dict, concu
 
         await asyncio.gather(*(one(t) for t in tasks))
         await browser.close()
+    if skipped:
+        print(json.dumps({"deadline_skipped": len(skipped), "first": skipped[:10]}), flush=True)
+        (out_root / "deadline_skipped.json").write_text(json.dumps(skipped))
     env_failed = [m["task_id"] for m in done if m.get("calls", m["usage"]["calls"]) == 0]
     if done and len(env_failed) == len(done):
         raise SystemExit(f"REFUSE: all {len(done)} episodes ended before any policy call (environment failure)")
@@ -123,7 +133,7 @@ def cmd_eval(a):
               OpenAIPolicy(a.endpoint, a.model, temperature=a.temperature, api_key=a.api_key, seed=a.seed))
     t0 = time.time()
     metas = asyncio.run(run_many(tasks, policy, pathlib.Path(a.out) / "runs", base_urls, a.concurrency, not a.no_som,
-                                 save_images=False))
+                                 save_images=False, deadline_s=a.deadline_min * 60))
     subprocess.run(["webarena-verified", "eval-tasks", "--config", a.config, "--output-dir", str(pathlib.Path(a.out) / "runs")],
                    check=False)
     summarize(a, tasks, metas, time.time() - t0)
@@ -161,7 +171,7 @@ def summarize(a, tasks, metas, wall_s):
         key = r["sites"][0] if len(r["sites"]) == 1 else "multi"
         per_site.setdefault(key, []).append(r["success"])
     res = {"model": a.model, "endpoint": a.endpoint, "seed": a.seed, "temperature": a.temperature, "som": not a.no_som,
-           "date_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "n_tasks": len(rows), "n_missing_eval": len(missing),
+           "date_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "n_tasks": len(rows), "n_missing_eval": len(missing), "n_selected": len(tasks),
            "success": sum(xs) / len(xs), "ci95": [lo, hi],
            "per_site": {k: {"n": len(v), "success": sum(v) / len(v)} for k, v in sorted(per_site.items())},
            "mean_steps": sum(r["steps"] or 0 for r in rows) / len(rows),
@@ -215,7 +225,8 @@ def cmd_collect(a):
         tasks = tasks[: a.limit]
     runs = out / "runs"
     expanded = [dict(t, task_id=f"{t['task_id']}-s{k}") for t in tasks for k in range(a.samples)]
-    metas = asyncio.run(run_many(expanded, policy, runs, base_urls, a.concurrency, True, save_images=True))
+    metas = asyncio.run(run_many(expanded, policy, runs, base_urls, a.concurrency, True, save_images=True,
+                                 deadline_s=a.deadline_min * 60))
     bym = {m["task_id"]: m for m in metas}
 
     async def verify_all():
@@ -364,6 +375,7 @@ def main():
         p.add_argument("--temperature", type=float, default=0.0)
         p.add_argument("--seed", type=int, default=0)
         p.add_argument("--no-som", action="store_true")
+        p.add_argument("--deadline-min", type=float, default=0, help="stop starting episodes after this many minutes")
     a = ap.parse_args()
     {"eval": cmd_eval, "collect": cmd_collect, "judge": cmd_judge, "devval": cmd_devval}[a.cmd](a)
 
