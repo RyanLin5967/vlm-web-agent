@@ -96,3 +96,7 @@ Append-only. Newest at the bottom. (Not named DECISIONS.md: the global spend-gua
 - Pipeline is now dependency-gated in the queue (launch.py "after"): relabel_reddit <- reddit collect;
   train_r0 (shopping+reddit data) <- relabel_reddit; 2B r0 evals <- train_r0. Gate fire-checked: exit 3,
   "DEPS PENDING: wa-reddit-collect is RUNNING", no kernel created.
+- 2026-11-25 11:40 UTC **BLOCKED: Kaggle weekly GPU quota (30 h) exhausted**, account-wide (this project + the
+  diff-attention project). Push error: "Maximum weekly GPU quota of 30.00 hours reached". Reset time undocumented.
+  Queue restarted detached (QUEUE_HOURS=96, 30-min retry on quota). Already-running wa-shopping-admin-collect
+  continues. wa-reddit-collect COMPLETE (old unpacked format; consumed by relabel via mount). See RESUME.md.
