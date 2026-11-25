@@ -36,8 +36,8 @@ def test_relabel_episode_end_to_end(tmp_path):
     # answer not on the endpoint page -> rejected; judge NO -> rejected
     bad = lambda m: (json.dumps({"task_type": "RETRIEVE", "intent": "What is the price of the red mug in the store?",
                                  "answer": "$1.00", "reasoning": ["a", "b"]}), {})
-    assert relabel.relabel_episode(ep, "a shop", bad, lambda m: ("YES", {})) is None
-    assert relabel.relabel_episode(ep, "a shop", teacher, lambda m: ("NO", {})) is None
+    assert relabel.relabel_episode(ep, "a shop", bad, lambda m: ("YES", {})) == {"drop": "answer_not_on_page"}
+    assert relabel.relabel_episode(ep, "a shop", teacher, lambda m: ("NO", {})) == {"drop": "judge_no"}
 
 def test_main_writes_collect_dir_and_rows(tmp_path, monkeypatch):
     make(tmp_path, ["http://localhost/", "http://localhost/cat", "http://localhost/p/1", "http://localhost/p/1"], [CLICK] * 4)

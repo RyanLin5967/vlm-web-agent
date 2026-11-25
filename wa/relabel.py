@@ -73,7 +73,7 @@ def relabel_episode(ep: pathlib.Path, site_blurb: str, policy, judge) -> dict | 
     acts = [s for s in steps if "action" in s and "image" in s]
     j = pick_endpoint(steps)
     if j is None:
-        return None
+        return {"drop": "no_endpoint" if len(acts) >= 3 else "too_short"}
     end = acts[j]
     lines = "\n".join(f"{i + 1}. {s['url']} -> {_name(s, s['action'])}" for i, s in enumerate(acts[:j]))
     end_text = "\n".join(end["text"])[:2500]
@@ -82,20 +82,20 @@ def relabel_episode(ep: pathlib.Path, site_blurb: str, policy, judge) -> dict | 
         end_text=end_text, n=j)}])
     m = re.search(r"\{.*\}", re.sub(r"<think>.*?</think>", "", raw, flags=re.S), re.S)
     if not m:
-        return None
+        return {"drop": "no_json"}
     try:
         lab = json.loads(m.group(0))
     except json.JSONDecodeError:
-        return None
+        return {"drop": "bad_json"}
     tt, intent, reasons = lab.get("task_type"), lab.get("intent"), lab.get("reasoning")
     if tt not in ("NAVIGATE", "RETRIEVE") or not isinstance(intent, str) or len(intent) < 15:
-        return None
+        return {"drop": "bad_label"}
     if not isinstance(reasons, list) or len(reasons) != j or not all(isinstance(r, str) for r in reasons):
-        return None
+        return {"drop": "reasoning_count"}
     if tt == "RETRIEVE":  # (a) programmatic check: answer literally on the endpoint page
         ans = lab.get("answer")
         if not isinstance(ans, str) or len(ans.strip()) < 1 or ans.strip().lower() not in end_text.lower():
-            return None
+            return {"drop": "answer_not_on_page"}
         answer = {"task_type": "RETRIEVE", "status": "SUCCESS", "retrieved_data": [ans.strip()], "error_details": None}
     else:
         answer = {"task_type": "NAVIGATE", "status": "SUCCESS", "retrieved_data": None, "error_details": None}
@@ -103,7 +103,7 @@ def relabel_episode(ep: pathlib.Path, site_blurb: str, policy, judge) -> dict | 
     acts_str = [to_str(s["action"]) for s in acts[:j]]
     jraw, _ = judge(verify.judge_messages(intent, answer, acts_str, Image.open(ep / end["image"])))
     if not verify.judge_says_yes(jraw):
-        return None
+        return {"drop": "judge_no"}
     # new trajectory: steps 0..j-1 with new reasoning, then stop at step j; history rebuilt for the new intent
     new_steps, history = [], []
     for i in range(j + 1):
@@ -158,9 +158,13 @@ def main():
     with ThreadPoolExecutor(a.concurrency) as ex:
         res = list(ex.map(one, eps))
     tasks, verified, n_ok, errs = [], [], 0, 0
+    drops = {}
     for k, (site, ep, r) in enumerate(res):
-        if not r or "error" in r:
-            errs += bool(r)
+        if "error" in r:
+            errs += 1
+            continue
+        if "drop" in r:
+            drops[r["drop"]] = drops.get(r["drop"], 0) + 1
             continue
         tid = f"rel-{site}-{ep.parent.parent.name}-{ep.name}"
         d = runs_out / f"{tid}-s0"
@@ -179,7 +183,7 @@ def main():
         n_ok += 1
     (out / "synthetic_tasks.jsonl").write_text("\n".join(json.dumps(t) for t in tasks))
     (out / "verified.jsonl").write_text("\n".join(json.dumps(v) for v in verified))
-    summ = {"episodes_in": len(eps), "relabeled": n_ok, "errors": errs,
+    summ = {"episodes_in": len(eps), "relabeled": n_ok, "errors": errs, "drops": drops,
             "relabeled_steps": sum(v["steps"] for v in verified)}
     (out / "relabel_summary.json").write_text(json.dumps(summ, indent=1))
     print(json.dumps(summ))
