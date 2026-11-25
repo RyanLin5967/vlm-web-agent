@@ -10,7 +10,7 @@ for job in "$@"; do
     case "$out" in *successfully*) break;; esac
     # anything else (network drop, Kaggle 5xx, git fetch failure) is retried too; the deadline bounds it
     [ "$(date +%s)" -gt "$deadline" ] && { echo "GAVE UP on $job"; exit 1; }
-    sleep 120
+    sleep 180
   done
 done
 echo QUEUE_DONE
