@@ -33,7 +33,15 @@ try:
         hits = [r for r, ds, fs in os.walk("/kaggle/input") if os.path.basename(r) == slug and r.count("/") <= 6]
         if not hits:
             raise RuntimeError("input not mounted: " + slug + " ; /kaggle/input has: " + str(os.listdir("/kaggle/input")))
-        os.symlink(hits[0], "/kaggle/in/" + slug)
+        tars = [f for f in os.listdir(hits[0]) if f.startswith("out") and f.endswith(".tar")]
+        if tars:  # packed output (see finally): unpack next to a copy of the small files
+            dst = "/kaggle/unpacked/" + slug
+            os.makedirs(dst, exist_ok=True)
+            for f in tars:
+                assert sh(f"tar -xf {hits[0]}/{f} -C {dst}", 7200) == 0, "unpack failed: " + f
+            os.symlink(dst, "/kaggle/in/" + slug)
+        else:
+            os.symlink(hits[0], "/kaggle/in/" + slug)
     stage("inputs", True, linked={s: os.path.realpath("/kaggle/in/" + s) for s in JOB.get("inputs", [])})
     sh("pip install -q pillow playwright webarena-verified sentence-transformers 2>&1 | tail -2 && python -m playwright install --with-deps chromium 2>&1 | tail -1", 1800)
     if JOB.get("gpu"):
@@ -81,7 +89,12 @@ finally:
         site.diagnose()  # always keep site logs (writes diagnose_<site>.txt and gitlab_logs/)
     except Exception:
         pass
-    sh(f"cd {OUT} && tar czf runs_trimmed.tgz --exclude='*.har' out* 2>/dev/null; du -sh {OUT}/* | tail -20")
+    # Pack each out_* dir into ONE tar (thousands of per-step files made `kaggle kernels output` hit the API rate
+    # limit, even with --file-pattern). Small result files are copied to summary/ first so they stay one fetch away.
+    sh(f"cd {OUT} && mkdir -p summary && for d in out*/; do d=${{d%%/}}; "
+       f"find $d -maxdepth 2 -type f \\( -name '*.json' -o -name '*.jsonl' \\) -size -20M | while read f; do "
+       f"mkdir -p summary/$(dirname $f) && cp $f summary/$f; done; "
+       f"tar -cf $d.tar $d && rm -rf $d; done; cp status.json run_*.log summary/ 2>/dev/null; du -sh {OUT}/* | tail -20")
 '''
 
 
