@@ -115,6 +115,12 @@ def main():
     # no machine_shape: the default GPU is T4x2 and starts at once; "NvidiaTeslaT4" sat QUEUED 30+ min (2026-11-24)
     (d / "kernel-metadata.json").write_text(json.dumps(meta))
     env = dict(os.environ, KAGGLE_API_TOKEN=pathlib.Path("~/.config/kaggle/token").expanduser().read_text().strip())
+    for dep in job.get("after", []):  # a kernel's output exists only once it has COMPLETED
+        st = subprocess.run(["uvx", "--quiet", "--with", "six", "kaggle", "kernels", "status", f"ryanlin5967/{dep}"],
+                            env=env, capture_output=True, text=True, timeout=120).stdout
+        if "COMPLETE" not in st:
+            print(f"DEPS PENDING: {dep} is {st.strip().split()[-1] if st.strip() else 'unknown'}")
+            sys.exit(3)
     r = subprocess.run(["uvx", "--quiet", "--with", "six", "kaggle", "kernels", "push", "-p", str(d)], env=env,
                        capture_output=True, text=True, timeout=180)
     print((r.stdout + r.stderr).strip().splitlines()[-1], "commit", job["commit"][:10])
