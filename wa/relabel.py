@@ -14,6 +14,7 @@ import argparse
 import json
 import pathlib
 import re
+import shutil
 from concurrent.futures import ThreadPoolExecutor
 
 from PIL import Image
@@ -107,7 +108,7 @@ def relabel_episode(ep: pathlib.Path, site_blurb: str, policy, judge) -> dict | 
     new_steps, history = [], []
     for i in range(j + 1):
         s = dict(acts[i])
-        s["image"] = str((ep / acts[i]["image"]).resolve())
+        s["image"] = acts[i]["image"]  # copied next to the new traj in main(): paths differ across kernels
         s["history"], s["last_error"] = history[-8:], ""
         if i < j:
             s["reasoning"] = reasons[i].strip()
@@ -164,6 +165,8 @@ def main():
         tid = f"rel-{site}-{ep.parent.parent.name}-{ep.name}"
         d = runs_out / f"{tid}-s0"
         d.mkdir(parents=True, exist_ok=True)
+        for s in r["steps"]:  # self-contained episode: copy its screenshots
+            shutil.copy(ep / s["image"], d / s["image"])
         (d / "traj.jsonl").write_text("\n".join(json.dumps(s, ensure_ascii=False) for s in r["steps"]))
         (d / "agent_response.json").write_text(json.dumps(r["answer"]))
         start = r["steps"][0]["url"]  # the original episode's start page
