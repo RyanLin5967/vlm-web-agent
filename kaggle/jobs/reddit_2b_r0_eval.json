@@ -19,7 +19,10 @@
    "mode": "eval",
    "out": "out_eval",
    "hours": 6,
-   "run_args": "--concurrency 8 --seed 0"
+   "run_args": "--concurrency 8 --seed 0 --deadline-min 420"
   }
+ ],
+ "after": [
+  "wa-train-r0"
  ]
 }
