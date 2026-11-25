@@ -1,0 +1,16 @@
+{
+ "name": "relabel_reddit",
+ "gpu": true,
+ "server": "vllm",
+ "model": "QuantTrio/Qwen3-VL-30B-A3B-Instruct-AWQ",
+ "vllm_args": "--tensor-parallel-size 2 --quantization awq --dtype float16 --enforce-eager --max-model-len 8192 --gpu-memory-utilization 0.92 --max-num-batched-tokens 4096 --limit-mm-per-prompt '{\"image\":1}'",
+ "inputs": [
+  "wa-reddit-collect"
+ ],
+ "steps": [
+  {
+   "cmd": "python -m wa.relabel --inputs /kaggle/in/wa-reddit-collect --out /kaggle/working/out_relabel --model QuantTrio/Qwen3-VL-30B-A3B-Instruct-AWQ --endpoint http://localhost:8000/v1 --concurrency 16",
+   "hours": 2
+  }
+ ]
+}

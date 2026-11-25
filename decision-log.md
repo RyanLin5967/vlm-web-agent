@@ -84,3 +84,9 @@ Append-only. Newest at the bottom. (Not named DECISIONS.md: the global spend-gua
 - **Evaluation scope = tasks whose sites are all in {shopping, shopping_admin, reddit}: 187+182+106+5 = 480/812
   (59%).** Every model in the table is scored on exactly this set; the table says so. GitLab (180+24) parked
   (flaky 500s under proot), map/wikipedia (109+17+2+6) blocked.
+- Shopping collection (30B-A3B, wa-shopping-collect): 402 episodes (ran out of tasks), 86 program-pass, 86
+  judge-pass, 291 verified steps (3.4 steps/episode, 82 RETRIEVE). Too little and too short.
+  -> **Trajectory-first relabeling** (wa/relabel.py): every coherent synthetic teacher trajectory becomes a
+  demonstration of the task it actually accomplished (teacher writes intent + per-step reasoning; verified by
+  answer-on-page check + the same LLM judge). Refuses eval-run inputs (rule 1). Collect jobs now append a relabel
+  step; standalone relabel jobs for finished collections. Leakage gate still runs over all intents in build_data.

@@ -9,8 +9,12 @@
   {
    "mode": "collect",
    "out": "out_collect",
-   "hours": 10.8,
-   "run_args": "--concurrency 16 --seed 1 --limit 900 --crawl-pages 250 --deadline-min 540"
+   "hours": 8.5,
+   "run_args": "--concurrency 16 --seed 1 --limit 1200 --crawl-pages 400 --deadline-min 450"
+  },
+  {
+   "cmd": "python -m wa.relabel --inputs /kaggle/working/out_collect --out /kaggle/working/out_relabel --model QuantTrio/Qwen3-VL-30B-A3B-Instruct-AWQ --endpoint http://localhost:8000/v1 --concurrency 16",
+   "hours": 2
   }
  ]
 }
