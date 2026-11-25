@@ -90,3 +90,9 @@ Append-only. Newest at the bottom. (Not named DECISIONS.md: the global spend-gua
   demonstration of the task it actually accomplished (teacher writes intent + per-step reasoning; verified by
   answer-on-page check + the same LLM judge). Refuses eval-run inputs (rule 1). Collect jobs now append a relabel
   step; standalone relabel jobs for finished collections. Leakage gate still runs over all intents in build_data.
+- relabel_shopping (wa-relabel-shopping): 402 episodes in -> 16 relabeled (69 steps), all NAVIGATE, 3-9 steps,
+  intents look natural. Yield low; drop-reason counters added for the next runs.
+- Packed kernel outputs (out_*.tar + summary/) fixed the Kaggle API rate limit on downloads.
+- Pipeline is now dependency-gated in the queue (launch.py "after"): relabel_reddit <- reddit collect;
+  train_r0 (shopping+reddit data) <- relabel_reddit; 2B r0 evals <- train_r0. Gate fire-checked: exit 3,
+  "DEPS PENDING: wa-reddit-collect is RUNNING", no kernel created.
