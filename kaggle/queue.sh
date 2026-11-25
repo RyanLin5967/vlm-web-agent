@@ -8,7 +8,7 @@ for job in "$@"; do
   deadline=$(( $(date +%s) + hours * 3600 ))
   while :; do
     out=$(timeout 200 uv run python kaggle/launch.py "$job" 2>&1 | tail -1)
-    echo "$(date -u +%m-%d %H:%M:%S) $job: $out"
+    echo "$(date -u "+%m-%d %H:%M:%S") $job: $out"
     case "$out" in *successfully*) break;; esac
     [ "$(date +%s)" -gt "$deadline" ] && { echo "GAVE UP on $job"; exit 1; }
     case "$out" in *"weekly GPU quota"*) sleep 1800;; *) sleep 180;; esac
